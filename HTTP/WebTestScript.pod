@@ -1,0 +1,280 @@
+=pod
+
+=head1 hw_baseurl 'url to use for relative urls'
+
+You'llneed Crypt::SSLeay to do https.
+
+
+=cut
+
+=pod
+
+=head1 hw_log directory for logs
+
+Otherwise, logging is to STDERR
+
+
+=cut
+
+=head1 fail "comment"
+
+Fail. Useful for constructs like:
+
+	(test not=1, text=>"Hobbits") && (test not=1, text=>"Dwarves") && fail "no heros available";
+
+Note the use of "not" so that the log reads with successes unless there is a failure.
+
+
+=cut
+
+=head1 get 
+
+=head2 get url
+
+Fetches the absolute or relative url. If html_save is on, saves to the hw_log directory (under the url name).
+
+Returns the HTTP::Response. Sets $gRequest, $gResponse;
+
+Dies on !$gResponse->is_success;
+
+=head2 Hints
+
+if defined($gResponse->previous) { warn "there was a redirect or 'unauthorized'" }
+
+
+=cut
+
+=head1 step description
+
+Mark the beginning of a section 
+
+
+=cut
+
+=pod
+
+=head1 name 'descriptive text'
+
+Names the test for purposes of the log
+
+Can't be a target from command line. Do this instead:
+
+sub myTestName
+	{
+	steps....
+	}
+
+name 'My Test Name'
+myTestName();
+
+Now you can refer to it from the command line under 'myTestName'
+
+
+=cut
+
+=head1 clickLink 'description', name=>'link name', id=>'id value', text=>'text or regex', href='text/regex'
+
+Find a link (<a>), and GET the result (see "get").
+
+The arguments are optional. Each is tested if present.
+
+See notes in Verify for regexes.
+
+
+=cut
+
+=head1 extract "description", element=>'tagName', [all=>1,] [emptyOK=>1,] text=>"some text", someAttribute=>'some value'
+
+Finds the (first) element with the tagName which has the attributes and text with the 
+specified values. if "all=>1' is specified, all tags are returned in an array-ref. If 
+"emptyOK=>1" is specified, then not finding the element(s) is not an error.
+
+The attributes and text are optional.
+
+Returns a hash: 
+
+ {tag=>"tagName", attributes=>{ attr1=>'value',...}, text=>'text till close tag'}
+
+Note that the text will be empty if the tag is an empty (xhtml) tag.
+
+
+=head1 extract "description", type=>'select|text|hidden|checkbox|radio|file|etc.', [all=>1,] someAttribute=>'some value', fromForm=>1, debug=>0|1
+
+If you specify fromForm=>1, you need to specify the 'type' and 'name'. You'll get back different info (which includes info on the whole form):
+
+Supplying debug=>1 will display each element (of type), with a clue about it's $someAttribute.
+
+{value => $value, form => $form, name => $realName, $anAttribute=>$aValue...}
+where 
+
+	$form = { fields => {$name => $asAbove ...}, name=>$nameOrAction, method=>$method, action=>$action }
+	$name = uc($type) . "_" . $realName # E.g. TEXT_username
+
+If the element is a SELECT, then $value will be {$optionValue => $theText ...}, and one of the attributes should be selected=>$trueFalse.
+
+With all=>1, you get a list of the above.
+
+
+=cut
+
+=head1 forgetCookies
+
+Forgets all cookies. The only other session-state might be encoded in urls in the html.
+
+
+=cut
+
+=head1 onResponse 'command', itsArgs...
+
+Register a command that should be executed for the response from each get/post. Useful for detecting generic run-time errors. For example:
+
+onResponse 'verify', 'PHP Parse Error', not=>1, text=>'Parse error':
+
+
+=cut
+
+=head1 perl -mHTTP::WebTestScript -e CLI_CreatePod
+
+Create the WebTestScript.pod which aggregates all the separate files
+
+
+=cut
+
+=head1 testing this package
+
+perl -mUnitTestInLine -e UnitTestInLine::run thisFile.pm
+
+
+=cut
+
+=test setup
+	Not a test, just get resources we need & define subs
+		use HTTP::WebTestScript;
+
+		our @cleanup;
+		
+		sub makeTestFile
+			{
+			# create a test file
+			my $file = 'webtestscript.'.$$;
+			my $path = "/tmp/$file";
+			
+			my $FH = IO::File->new(">$path") || die "can't make $path, $!";
+			
+			$FH->close;
+			push @cleanup, sub {unlink $path};
+			
+			return ("file://$path","file:///tmp","$file");
+			}
+		
+		END {map {&$_()} @cleanup}
+					
+=test relativeUrls
+	Test hw_baseurl vs. absolute
+		assertFalse("'file': is not supported by http::request/lwp") || die;
+		
+		hw_baseurl  "/";
+		my ($absUrl, $baseUrl, $relativeUrl) = makeTestFile();
+		assertNoDie(get $absUrl);
+
+
+=cut
+
+=head1 set|unset "comment", 'checkOrRadioBoxName'
+
+Use the tag's value to set the checkbox or radioBox. 
+
+For radioButtons, will set the first one.
+
+For unset, will omit the param on submit.
+
+=head1 set/unset "comment", checkOrRadioBoxName=>"value"
+
+Explicitly set the correct checkbox, or radio button. 
+
+For unset, unset all radioBoxes, or only unset one checkbox.
+
+
+=cut
+
+=head1 choose "comment", selectName=>"value"
+
+Set a dropdown (name='selectName') to the value (the value of the 'value' attribute, not the display string).
+
+('select' is a perl reserved word).
+
+
+=cut
+
+=head1 input name=>'value'
+
+Sets the value for the text, textarea or password field.
+
+Use "set" for checkboxes, radios, and selects.
+
+You can't set a submit or hidden field. Use "hidden" instead of "input".
+
+Dies if the field doesn't exist.
+
+
+=cut
+
+=head2 upload name-of-input-field=>$fileName
+
+Causes multi-part/form upload.
+
+Uses the mechanism in HTTP::Common::Request, so the "part" that is the file will get a Content-Type header from some mime-type lookup.
+
+
+=cut
+
+=head1 clickButton description name=>'button name'
+=head1 clickButton description type=>'type attribute'
+
+Finds the first button with the name (or name='', type='$type'), submits the form it belongs to. 
+All of the values you've set, as well as this buttons "name=value" are sent as a POST.
+
+See "get".
+
+
+=cut
+
+=head1 submit description id=>$x, action=>$y, $name=>$z
+
+Finds the first form (matching first of id,action,name in order) and submits it.
+
+
+=cut
+
+=head1 verify comment, ...
+
+You may substitute a regex anywhere below that there is text that you are looking for by supplying qr'...'. Note that qr"..." interpolates, as does qr/.../
+
+If you use parenthesis in your qr//, the result from verify() will be undef or a ref to an array. Use this recipe
+ 
+	my $rez = verify "match and extract", qr/number (\d+) named (.+)/;
+	my ($valueIWant, $secondValueIWant) = @{ $rez || [] }; # perlism
+	# now $valueIWant is either undef or the $1 match, etc.
+
+=head2 verify text=>'text to match'
+
+=head2 verify input=>'fieldName', value=>'text in that field';
+
+=head2 verify select=>'selectName', value=>'valueThatShouldBeSelected'
+
+=head2 verify element=>'tag name, i.e "body"', text=>'text/regex', 'someattribute'=>'text/regex'...
+
+Find the element, test any/all of: it's text (till end-tag, collapse whitespace), it's attributes.
+
+"not=>1" may be used.
+
+
+=cut
+
+=head1 test comment, ...
+
+Just like verify, but doesn't croak, just returns true/false.
+
+
+=cut
+

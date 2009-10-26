@@ -1,0 +1,66 @@
+#!/usr/bin/env perl
+# See perldoc for TestHarness.
+
+use TestHarness (); # inhibit import for our purposes
+use strict;
+
+# arguments are a list of packages
+
+my $atLeast1=0;
+my $done=0;
+	
+sub main
+	{
+
+	my @testName;
+
+	if ($ARGV[0] =~ /^-(V+)/)
+		{
+		my $verbosity = 2 ** (-1 + length $1);
+		$TestHarness::kVerbose = $verbosity;
+		shift @ARGV;
+		}
+	if ($ARGV[0] eq '-t')
+		{
+		shift @ARGV;
+		push @testName , shift @ARGV;
+		}
+
+	foreach (@ARGV)
+		{
+
+		if (/\.pm$/ ) #FIXME: document 
+			{
+			require $_;
+			import $_;
+			$_ = $TestHarness::gLastTarget;
+			}
+		else
+			{
+			s|/|::|g;
+			}
+
+		
+		#print "trying $_\n";
+		eval {TestHarness->new($_)->main(@testName);};
+		if ($@)
+			{
+			print STDERR $@;
+			next;
+			}
+		$atLeast1=1;
+		}
+	$done = 1;
+}
+
+END
+	{
+	if ($atLeast1)
+		{
+		TestHarness::report();
+		print "## See errors above\n" if !$done;
+		}
+	}
+main();
+
+1;

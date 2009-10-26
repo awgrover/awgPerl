@@ -1,0 +1,1 @@
+/sbin /bin /usr/local/bin /usr/sbin /usr/bin /usr/local/sbin

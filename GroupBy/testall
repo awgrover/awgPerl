@@ -1,0 +1,1 @@
+perl -MGroupBy -e GroupBy::main -- -p ipfw action date day direction fromIP fromIPBytes fromPort hour interface min mon protocol rule time toIP toIPBytes toPort when < test.log

@@ -1,0 +1,9 @@
+# assume PERLLIB is set for ../
+# assume cwd = ../
+
+#echo "Should say, 'Ran test routine'"
+echo "No output..."
+./perltest Tests/TestHarness
+echo "ok."
+echo "## Now multiple packages"
+./perltest Tests/TestHarness Tests/TestHarnessxx Tests/TestHarnessx

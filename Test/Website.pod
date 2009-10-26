@@ -1,0 +1,534 @@
+=head1 Name
+
+Test::Website - Handier web-interaction for testing or scripting.
+
+=head1 Synopsis
+
+A concise set of commands for interacting with web-sites, and testing them (works with L<Test::Builder>). 
+The DSL strives for DWIM'ness, and emphasizes simple matching expressions. 
+
+The commands are like the interaction you would have with a web-page: "get" an url, "set" a form-field, "submit" a form, etc. Also, checking for elements/text.
+
+    use Test::Simple;  # or Test::More etc.
+    use Test::Website;
+
+    baseurl 'http://google.com';
+
+    get;
+    element 'title', text => 'Google';
+    set q => "Rakudo";
+    submit;
+    element text => qr/rakudo.org/; # fails! got 403
+    my $link = element 'a', text => qr/Rakudo.org/;
+    print "Will link to ".$link->attr('href')."\n";
+    follow $link;
+
+Most of the commands _are_ tests. E.g. "element" will fail if there is no such element. So, we play well
+with all the L<Test::More> and related modules (e.g. L<Test::Behaviour::Spec>).
+
+Other CPAN modules (L</"See Also">) have various approaches to testing/interaction with web-sites.
+
+
+=cut
+
+=head1 State variables
+
+=head2 $Test::Response
+
+This is a L<HTTP::Response> object. It holds the last response, whether from a get or post.
+
+=over
+
+Hint: $Response->previous is defined if there was a redirect.
+
+=back
+
+
+=cut
+
+=head2 $Test::Request
+
+This is a L<HTTP::Request> object. It holds the last request, whether from a get or post.
+
+
+=cut
+
+=head2 Test::Website::UA()
+
+The LWP::UserAgent, with a slight tweak: "On redirect, do not re-send post-data."
+
+A singleton.
+
+
+=cut
+
+=head1 Configuration
+
+=head2 use Test::Website;
+
+All the commands are imported into your module. Our functionality is actually split
+into multiple modules, but all the commands are aggregated into a top-level import.
+
+You'll need L<Crypt::SSLeay> to do https.
+
+
+=cut
+
+=head2 baseurl 'some-absolute-url'
+
+The baseurl is convenient so you can use relative urls. This only affects "get", and you can
+always provide an absolute url in "get".
+
+
+=cut
+
+=head2 fail_on "why", <element-predicates>
+
+Needs a better name. This is really "elements that must NOT be on a page."
+
+When a new response is obtained, each "fail_on" is tested, and causes a failure if it matches.
+
+See L</"Element Predicates"> below.
+
+    fail_on "PHP Warning notice", text => qr/Notice: /;
+
+
+=cut
+
+=head2 save_html "directory"
+
+Response content will be saved in the directory, with a file-name mangled from the url. By
+default, nothing is saved.
+
+
+=cut
+
+=head2 basic_auth "name" => "password";
+
+Set the username/password for basic auth. This sticks through subsequent requests.
+
+To remove the basic auth user/pass:
+
+    basic_auth;
+
+
+=cut
+
+=head1 Requests
+
+These commands function as tests, logging ok/fail for the relevant element (e.g. no <form>, <input> etc.).
+as tests.
+
+=head2 forget_cookies
+
+Forgets all cookies. The only other session-state might be encoded in urls in the html.
+
+
+=cut
+
+=head2 get "url"
+
+Fetches the absolute or relative url. If L<save_html|/"save_html directory"> is on, saves to that directory (under the url name).
+
+Returns the L<HTTP::Response>. Sets L<$Request|/_test__request>, L<$Response|/_test__response>;
+
+The url is optional if you have a L<base_url|/baseurl__someabsoluteurl_>. That's convenient for getting the "home" page.
+
+    base_url 'http://google.com';
+    get;
+
+Dies on !$Response->is_success;
+
+=head2 get \*FILEHANDLE
+
+A hack to that lets you use an open file-handle as the http response stream (headers, newline, body).
+
+Obviously, trying to follow or post, or any other HTTP protocol things won't work.
+
+I use this to test the module, stubbing (via L<Sub::Override>) the HTTP parts.
+
+=head2 OtherRequestsGoesHere
+
+
+=cut
+
+=head1 Tests/Extraction
+
+=head1 OtherTestsGoesHere
+
+=head1 Fixme
+
+Move the pagecache to the response object.
+
+Remove the use of pagecache for form-info.
+
+headers?
+
+=head1 Limitations
+
+Does not run javascript. So, you can't test it. Suggestions/implementation/proposals on implementing this are welcome.
+
+Does not load any images, css, or other media.
+
+Doesn't know about CSS syntax. You could do textual checking.
+
+=head1 See Also
+
+=over
+
+=item * L<HTML::TreeBuilder>/L<HTML::TreeBuilder::XPath>. How we parse and search the web-page.
+
+=item L<Test::Builder> and its ecosystem. Framework, and commands for test suites.
+
+=item * L<WWW::Mechanize>. Another web interaction tool: OO, lower-level, better scraping.
+
+=item * L<Test::HTTP>. Another web testing tool: OO, not tree parsing, simple, Test::Builder based.
+
+=item * L<Test::HTTP::Syntax>. Another web testing tool, built on Test::HTTP. Specify the test as a http-stream exemplar (not programmatic).
+
+=item * L<http://seleniumhq.org/>. Test and excersize web-sites _in_ your browser.
+
+=item * L<http://www.webinject.org/>. XML-spec for testing.
+
+=item * L<Test::XML>. Diff for XML.
+
+=item * The Ruby ecosystem.
+
+=item * And more L<http://www.softwareqatest.com/qatweb1.html#FUNC>, L<http://perl-qa.hexten.net/wiki/index.php/TestingTools>, 
+
+=item * L<curl> or L<wget>. Command line web-site interaction, spidering.
+
+=back
+
+=head1 TODO
+
+clean up trace for logging of a trace.
+
+add no-TAP to inhibit test messages
+
+add no-die
+
+how to get working with test::behavior
+
+=head1 Creating the POD
+
+To assemble the POD for Test::Website,
+
+    cd ..../Test
+    make -f Website/Makefile pod
+
+
+=cut
+
+=head2 <element-predicate>...
+
+These are the arguments to most of the tests (e.g. L</"element">), specifies the element in the html document.
+
+You can have multiple predicates (see below).  The predicates are usually and'd together, but see "attr=>value" below.
+
+There are some short-hands (e.g. L</form>), and see each command (e.g. L<element|element__elementpredicate____>) for special short-hand predicates.
+
+NB: Some predicates take a list of predicates, e.g.
+    in => { .... }
+You may not repeat key-names in such a list, e.g. wrong: in => { id=>'x', id=>'y' }
+
+=head3 attr => "value", ...
+
+Basic "atribute has value" predicate. May have several
+with the same attribute name. If you repeat a "attr", they will be or'd.
+
+The attr and value can be:
+
+        literals
+        qr//
+        sub(HTML::Element) {return t/f} # not implemented yet
+
+=head4 psuedo attr: tag
+
+The tag-name, e.g. "html"
+
+=head4 psuedo attr: n
+
+The position, given the rest of the predicates.  Toplevel predicate only. Short-hand for something like:
+
+    @res = element .....
+    $n < scalar(@res) ? $res[$n] : undef;
+
+=head3 xpath("expr"), OR xpath=>"expr"
+
+Restrict to the nodes that satisfy the expr. Predicates then apply to that list.
+
+Not compatible with "in". Only usable at the "top-level" of a predicate list, e.g.,
+not within "not", etc.
+
+=head3 not => {element-predicate...}
+
+Means "and not <element-predicates>".
+
+Read something like "for the element: and not 1, and not 2, and not 3."
+
+NB:
+
+    element not => { stuff }    # wrong
+
+will never fail. You probably want:
+
+    not_element stuff...
+
+=head3 first-of => {element-predicates}
+
+Acts like:
+
+    other-predicates and firstof1
+    or other-predicates and firstof2
+    ...
+
+E.g. The first alternative.
+
+If you want this behavior: 
+
+    other-predicates and (a or b or c), 
+
+do a qr// or sub{}
+
+    ..., qr/^a|b|c$/ => somevalue
+
+=head3 in => {element-predicate}
+
+    "in an element with <element-predicates>."
+
+    Not compatible with using xpath.
+
+=head3 Short-hand form => "id or action or name or n" 
+
+For 
+
+    in => {tag => "form", first-of => {id=>"x", action=>"x", name=>"x", n => "x"}}
+
+
+=cut
+
+=head2 element <element-predicate>...
+
+    If the element exists in the document
+        return the first one, and log success
+        the returned thing is a HTML::Element
+    else 
+        log failure 
+        die
+
+In an array contex, You will get all the matching elements (of type L<HTML::Element>).
+
+See L<maybe|/maybe_____elementpredicate____>, below, for inhibiting the "die."
+
+=head3 Short-hand: element "tagname" 
+
+For 
+
+    element tag=>"tagname".
+
+=head3 Predicate maybe => {element-predicate...}
+
+As if the predicates, but means "don't fail, return null". Changes "element" from 
+an assertion to "find element or null." Generally, put all the predicates are in the "maybe."
+
+=head3 Idiom: find an element
+
+element maybe=>{predicates...}
+
+Inhibits the "die" if the element is not found.
+
+Returns the first match (or undef) in scalar context, all matches in array context.
+
+=head3 Short-hand not_element ... 
+
+For "no such element", something like (cf. L<not|/not_____elementpredicate____>)
+
+    not element maybe => {...} || fail...
+
+=head3 Short-hand maybe-element ... 
+
+For 
+
+    element maybe => {...}
+
+=head3 Short-hand all-element ... for element all => {...}
+
+=head3 Short-hand field "name" ... 
+
+For 
+
+    element tag => qr/select|checkbox|.../, ..., first-of => {id=>"x", action=>"x", name=>"x"}
+
+
+=cut
+
+=head2 follow element <element-predicates>
+
+Really, the same as
+
+    my $e = element ....;
+    follow $e;
+
+=head3 Short-hand follow <element-predicates> 
+
+For
+
+    follow element <element-predicates>
+
+=head3 Short-hand follow 'hrefvalue'; or follow qr/hrefvalue/, ... 
+
+A single argument is assumed to be for the href attribute (unless the arg is the result from an "element", see L<above|follow_element__elementpredicates_>).
+
+    follow tag=>'a', href=>hrefvalue, ...
+
+
+
+=cut
+
+=head2 submit <element-predicate>
+
+Submit the matched form (see L<element-predicate|/_elementpredicate____>, must match a form, or a button. If it matches a form, this will include the first button in the posted params.
+
+if you omit "tag", assumes
+
+    tag => input, type => submit
+    or tag => button
+
+=head3 Short-hand submit 
+
+For: 
+
+    "use first button or form"
+
+=head3 Short-hand submit "buttonname" 
+
+For: 
+
+    "use button named... OR form id/action/name|n ..."
+
+=head2 submit href => "...", fields => { k=>v,...}
+
+Submits a synthesized POST.
+
+
+=cut
+
+=head2 set value => "somevalue", <element-predicates>
+
+Will set a form-field's value. Will find the first field that matches (the 'value' is not a predicate), of course.
+Use the "form" predicate if necessary to pick a form.
+
+    Form-field  Behavior
+    text        fills in the value
+    password    fills in the value
+    textarea    fills in the value
+    file        fills in the value (the file-name to be uploaded)
+    select      "selects" an option (see below).
+    checkbox    "checks" that checkbox (see below).
+    radio       "checks" only that radio (un-checks the other of the same name) (see below).
+    hidden      causes a failure (see "force => {}").
+
+For a "select" field, the value must match one of it's "options". You can
+match the value attribute, or the option's text.
+
+For a checkbox and radio, the value must match an value attribute.
+
+To set multiple checkboxes, or multiple options, use a regex value.
+    
+    set name="somecheckbox", value => qr/^[23]$/;
+    set name="someselect", value => qr/^MD|MI|LA$/;
+
+Of course, this fails if the matched element is not a form-field.
+
+NB: You must provide some predicate in additino to "value=>v".
+
+=head3 Short-hand set somefieldname => 'some value',... 
+
+For: 
+
+    set name=>"somefieldname", value=>"somevalue", ...
+
+This is the most convenient form. 
+
+There is some ambiquity here versus just a list of k=>v predicates. So, we try to treat the first k=>v as the "name" attribute, and "value" attribute. If that fails, we try to treat them as attributeName=>attributeValue.
+
+=head3 Idiom set 'checkOrRadioOrSelectName' 
+
+For: 
+
+    "set the first radio/option, or all checkbox"
+
+Convenient when there is only one checkbox/radio for a name. Will set all the options for a "multiple" "select".
+
+=head3 Idiom set somename => undef 
+
+For: 
+
+    "unset the field"
+
+That field will be omitted from submitted params.
+
+=head3 Short-hand set <element-predicate for checkbox/radio/select> 
+
+For: 
+
+    set value => qr/./, <predicates...>
+
+Only for radio/check/select.
+
+You may omit the "value" for checkbox/radio/select. 
+
+For radios, the first matching radio will be set; for checkboxes, all the matching checkboxes will be set.
+
+For "select", if it is a "multiple",
+then all the options of that "select" will be "selected"; for a non-multiple "select",
+only the first option of the matched "select".
+
+    set name=>"somecheckbox"; # sets all the checkboxes w/that name
+    set name=>"someradio"; # sets first radio of that name
+    set name=>"someselect"; # first of its options "selected"
+    set name=>"multiselect"; # all of its options "selected"
+
+=head3 force=> "somevalue", pred-for-hidden
+
+You can only set a hidden field by using "force" instead of value.
+
+=head3 Short-hand unset 'field' 
+
+For: 
+
+    set name=>'field', value=>'undef'
+
+Unset's the field
+
+=head3 Submitting arbitrary query-params
+
+If you want to "set" a radio/checkbox/select to a non-existent "value", or add non-existent fields,
+you'll have to use: submit force=>[]. See Submit.
+
+
+=cut
+
+=head1 Method HTML::Element->form_field_value
+
+An extension to HTML::Element, gives the "value" of a formfield:
+
+    my $e = element 'select', name => "state";
+    my $itsvalue = $e->value;
+
+Will set the fields "value" if $value is given.
+
+    $e->value("MD");
+
+Works roughly like so:
+
+    text|hidden|password : ->attr('value')
+    radio/checkbox : ->attr('checked') & (->attr('value') || 1)
+    select : value|text|1 of each ->attr('_options') that is selected
+    textarea : ->content_list()[0]
+    file : ->attr('value')
+
+
+=cut
+

@@ -1,0 +1,200 @@
+Oct 29 03:15:03 nic-131-c112-234 syslogd: restart
+Oct 29 03:15:03 nic-131-c112-234 sendmail[885]: NOQUEUE: SYSERR(root): /etc/mail/sendmail.cf: line 81: fileclass: cannot open /etc/mail/local-host-names: Group writable directory
+Oct 29 03:15:03 nic-131-c112-234 sendmail[886]: NOQUEUE: SYSERR(root): /etc/mail/sendmail.cf: line 81: fileclass: cannot open /etc/mail/local-host-names: Group writable directory
+Oct 29 03:15:03 nic-131-c112-234 CRON[848]: (root) MAIL (mailed 108 bytes of output but got status 0x0047 ) 
+Oct 29 03:44:13 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - timeout for 24.131.1.8
+Oct 29 03:53:07 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 17.254.0.31:123 24.131.112.234:123 in via en0
+Oct 29 04:58:10 nic-131-c112-234 mach_kernel: ipfw: 100 Count ICMP:3.1 208.222.9.137 24.131.112.234 in via en0
+Oct 29 05:34:02 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - timeout for 24.131.1.8
+Oct 29 06:07:06 nic-131-c112-234 /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine: kCGErrorFailure : CGSDisplayID: App trying to enumerate [0 to CGSGetNumberOfDisplays()] instead of using CGSGetDisplayList().  Compensating...
+Oct 29 09:40:06 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 24.37.178.180:2052 24.131.112.234:27374 in via en0
+Oct 29 09:40:27 nic-131-c112-234 last message repeated 3 times
+Oct 29 10:26:55 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 24.169.129.59:3256 24.131.112.234:27374 in via en0
+Oct 29 10:27:16 nic-131-c112-234 last message repeated 3 times
+Oct 29 11:44:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 24.131.1.56:35255 24.131.112.234:113 in via en0
+Oct 29 11:44:42 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 24.131.1.56:35255 24.131.112.234:113 in via en0
+Oct 29 12:59:18 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 17.254.0.31:123 24.131.112.234:123 in via en0
+Oct 29 13:03:52 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - timeout for 24.131.1.8
+Oct 29 13:10:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 24.131.1.56:49884 24.131.112.234:113 in via en0
+Oct 29 13:10:41 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 24.131.1.56:49884 24.131.112.234:113 in via en0
+Oct 29 13:14:53 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 202.108.65.13:4315 24.131.112.234:27374 in via en0
+Oct 29 13:35:27 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 217.82.93.218:4786 24.131.112.234:21 in via en0
+Oct 29 13:35:30 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny TCP 217.82.93.218:4786 24.131.112.234:21 in via en0
+Oct 29 13:53:34 nic-131-c112-234 mach_kernel: Ethernet(UniN): Link is down.
+Oct 29 13:53:34 nic-131-c112-234 mach_kernel: 
+Oct 29 13:53:34 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-AppleTalk
+Oct 29 13:53:38 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-NetInfo
+Oct 29 13:53:38 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/set-hostname
+Oct 29 13:53:38 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-lookupd
+Oct 29 13:53:38 nic-131-c112-234 lookupd[214]: Caught SIGHUP - reset
+Oct 29 13:53:38 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-automount
+Oct 29 13:54:08 nic-131-c112-234 lookupd[214]: _lookup_all(query) failed
+Oct 29 13:54:08 nic-131-c112-234 lookupd[214]: _lookup_all(query) failed
+Oct 29 13:55:21 nic-131-c112-234 mach_kernel: UniNEnet::monitorLinkStatus - Link is up at 10 Mbps - Half Duplex
+Oct 29 13:55:21 nic-131-c112-234 mach_kernel: 
+Oct 29 13:55:21 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-AppleTalk
+Oct 29 13:56:06 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-NetInfo
+Oct 29 13:56:06 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/set-hostname
+Oct 29 13:56:06 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-lookupd
+Oct 29 13:56:06 nic-131-c112-234 lookupd[214]: Caught SIGHUP - reset
+Oct 29 13:56:06 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-automount
+Oct 29 13:56:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny P:2 169.254.127.45 239.255.255.253 out via en0
+Oct 29 13:56:46 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny P:2 169.254.127.45 239.255.255.253 out via en0
+Oct 29 13:58:27 nic-131-c112-234 mach_kernel: Tx Int Timeout - Comp = 006a Kick = 006c Int = 03500006
+Oct 29 13:58:27 nic-131-c112-234 mach_kernel: 
+Oct 29 13:58:38 nic-131-c112-234 mach_kernel: Tx Int Timeout - Comp = 007e Kick = 0000 Int = 03f00006
+Oct 29 13:58:38 nic-131-c112-234 mach_kernel: 
+Oct 29 14:00:25 nic-131-c112-234 configd[123]: executing /usr/sbin/DirectoryService
+Oct 29 14:01:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 169.254.127.45:49178 24.131.1.8:53 out via en0
+Oct 29 14:01:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 169.254.127.45:49178 24.131.1.9:53 out via en0
+Oct 29 14:01:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 169.254.127.45:49178 24.131.1.8:53 out via en0
+Oct 29 14:01:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 169.254.127.45:49178 24.131.1.9:53 out via en0
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - send failed for 24.131.1.8
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_fqdn_query_server - query failed for 24.131.1.8
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - send failed for 24.131.1.9
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_fqdn_query_server - query failed for 24.131.1.9
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - send failed for 24.131.1.8
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_fqdn_query_server - query failed for 24.131.1.8
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - send failed for 24.131.1.9
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_fqdn_query_server - query failed for 24.131.1.9
+Oct 29 14:01:38 nic-131-c112-234 sendmail[1987]: NOQUEUE: SYSERR(awgrover): /etc/mail/sendmail.cf: line 81: fileclass: cannot open /etc/mail/local-host-names: Group writable directory
+Oct 29 14:01:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 169.254.127.45:49178 24.131.1.8:53 out via en0
+Oct 29 14:01:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 169.254.127.45:49178 24.131.1.9:53 out via en0
+Oct 29 14:01:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 169.254.127.45:49178 24.131.1.8:53 out via en0
+Oct 29 14:01:38 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny UDP 169.254.127.45:49178 24.131.1.9:53 out via en0
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - send failed for 24.131.1.8
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_fqdn_query_server - query failed for 24.131.1.8
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - send failed for 24.131.1.9
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_fqdn_query_server - query failed for 24.131.1.9
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - send failed for 24.131.1.8
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_fqdn_query_server - query failed for 24.131.1.8
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_send_query_server - send failed for 24.131.1.9
+Oct 29 14:01:38 nic-131-c112-234 lookupd[214]: DNSAgent: dns_fqdn_query_server - query failed for 24.131.1.9
+Oct 29 14:01:39 nic-131-c112-234 WindowServer[72]: CGXOrderWindow: Operation on a window not owned by you
+Oct 29 14:01:40 nic-131-c112-234 loginwindow[281]: kCGErrorIllegalArgument : CGSUnregisterWindowWithSystemStatusBar: Invalid window
+Oct 29 14:01:40 nic-131-c112-234 mach_kernel: ipfw: 65435 Deny P:2 169.254.127.45 224.0.0.2 out via en0
+Oct 29 14:01:40 nic-131-c112-234 mach_init[2]: Mysterious loss of send rights on port 14083, deleting service AppleEvents-290
+Oct 29 14:01:40 nic-131-c112-234 configd[123]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-automount
+Oct 29 14:01:41 nic-131-c112-234 mach_kernel: syncing disks... 
+Oct 29 14:01:41 nic-131-c112-234 syslogd: exiting on signal 15
+Nov 15 13:23:05 localhost syslogd: restart
+Nov 15 13:23:05 localhost mach_kernel: standard timeslicing quantum is 10000 us
+Nov 15 13:23:05 localhost mach_kernel: vm_page_bootstrap: 155560 free pages
+Nov 15 13:23:05 localhost mach_kernel: mig_table_max_displ = 64
+Nov 15 13:23:05 localhost mach_kernel: [31mC[32mO[33mL[34mO[35mR[0m video console at 0xb6008000 (1152x768x32)
+Nov 15 13:23:05 localhost mach_kernel: IOKit Component Version 1.1:
+Nov 15 13:23:05 localhost mach_kernel: Sun Sep  9 15:30:21 PDT 2001; root(rcbuilder):RELEASE_PPC/iokit/RELEASE
+Nov 15 13:23:05 localhost mach_kernel: _cppInit done
+Nov 15 13:23:05 localhost mach_kernel: IODeviceTreeSupport done
+Nov 15 13:23:05 localhost mach_kernel: Recording startup extensions.
+Nov 15 13:23:05 localhost mach_kernel: Copyright (c) 1982, 1986, 1989, 1991, 1993
+Nov 15 13:23:05 localhost mach_kernel: 	The Regents of the University of California.  All rights reserved.
+Nov 15 13:23:05 localhost mach_kernel: 
+Nov 15 13:23:05 localhost mach_kernel: using 1638 buffer headers and 819 cluster IO buffer headers
+Nov 15 13:23:05 localhost mach_kernel: USB:   13.727: [0x2238C00] USB Generic Hub @ 1 (0x18)
+Nov 15 13:23:05 localhost mach_kernel: USB:   13.729: [0x2298A00] USB Generic Hub @ 1 (0x19)
+Nov 15 13:23:05 localhost mach_kernel: Local FireWire GUID = 0x393ff:0xfe034b6a
+Nov 15 13:23:05 localhost mach_kernel: Register ApplePMU to acknowledge power changes
+Nov 15 13:23:05 localhost mach_kernel: ADB present:8c
+Nov 15 13:23:05 localhost mach_kernel: ApplePMU::allocateInterfaces ourRTCinterface is up and running
+Nov 15 13:23:05 localhost mach_kernel: ApplePMU::allocateInterfaces ourPwrinterface is up and running
+Nov 15 13:23:05 localhost mach_kernel: devfs enabled
+Nov 15 13:23:05 localhost mach_kernel: dlil_init
+Nov 15 13:23:05 localhost mach_kernel: IOKitBSDInit
+Nov 15 13:23:05 localhost mach_kernel: From path: "/pci@f2000000/mac-io@17/ata-4@1f000/disk@0:9,\mach_kernel", Waiting on <dict ID="0"><key>IOPathMatch</key><string ID="1">IODeviceTree:/pci@f2000000/mac-io@17/ata-4@1f000/@0:9</string></dict>
+Nov 15 13:23:05 localhost mach_kernel: dlil_input_thread 222f8e8
+Nov 15 13:23:05 localhost mach_kernel: Got boot device = IOService:/MacRISC2PE/pci@f2000000/AppleMacRiscPCI/mac-io@17/KeyLargo/ata-4@1f000/KeyLargoATA/ATADeviceNub@0/IOATABlockStorageDriver/IOATABlockStorageDevice/IOBlockStorageDriver/IC25N030ATDA04-0 Media/IOApplePartitionScheme/untitled@9
+Nov 15 13:23:05 localhost mach_kernel: BSD root: disk0s9, major 14, minor 9
+Nov 15 13:23:05 localhost mach_kernel: devfs on /dev
+Nov 15 13:23:05 localhost mach_kernel: Jettisoning kernel linker.
+Nov 15 13:23:05 localhost mach_kernel: Resetting IOCatalogue.
+Nov 15 13:23:05 localhost mach_kernel: AppleSCCModem(23a5700): setPowerState is called -- powerStateOrdinal = 0
+Nov 15 13:23:05 localhost mach_kernel: IOKernelDebugger: Debugger attached
+Nov 15 13:23:05 localhost mach_kernel: IOPCCard info:   Mac OS X PCMCIA Card Services 3.1.22
+Nov 15 13:23:05 localhost mach_kernel: IOPCCard info:     options:  [pci] [cardbus] [pnp]
+Nov 15 13:23:05 localhost mach_kernel: IOPCCard info:   Intel PCIC probe: 
+Nov 15 13:23:05 localhost mach_kernel: IOPCCard info:     TI 1211 rev 00 PCI-to-CardBus phys mem 0xa0000000 virt mem 0x126b2000
+Nov 15 13:23:05 localhost mach_kernel: IOPCCard info:       host opts [0]: [pci only] [pci irq 255] [lat 16/32] [bus 1/1]
+Nov 15 13:23:05 localhost mach_kernel: IOPCCard info:       PCI card interrupts, PCI status changes
+Nov 15 13:23:05 localhost mach_kernel: ATIRage128: using AGP
+Nov 15 13:23:05 localhost mach_kernel: VSLNewInterruptService('dci ')
+Nov 15 13:23:05 localhost mach_kernel: VSLNewInterruptService('vbl ')
+Nov 15 13:23:05 localhost mach_kernel: b6008000: VRAM found b6000000:00800000
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: i2cPower 0
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128 EDID Version 1.3
+Nov 15 13:23:05 localhost mach_kernel: Vendor/product 0x610/0x9c0d, Est:  0x00, 0x00, 0x00,
+Nov 15 13:23:05 localhost mach_kernel: Std:  0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101,
+Nov 15 13:23:05 localhost mach_kernel: ApplePanel(key F5P9c0d)
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: user ranges num:1 start:b6008000 size:360080
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: using (1152x768@0Hz,32 bpp)
+Nov 15 13:23:05 localhost mach_kernel: VSLNewInterruptService('dci ')
+Nov 15 13:23:05 localhost mach_kernel: VSLNewInterruptService('vbl ')
+Nov 15 13:23:05 localhost mach_kernel: b6408000: VRAM found b4000000:00800000
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: user ranges num:1 start:b6408000 size:180
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: using (1x1@0Hz,32 bpp)
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: user ranges num:1 start:b6008000 size:360080
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: using (1152x768@0Hz,32 bpp)
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: user ranges num:1 start:b6408000 size:180
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: using (1x1@0Hz,32 bpp)
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: user ranges num:1 start:b6008000 size:1b0080
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: using (1152x768@0Hz,16 bpp)
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: user ranges num:1 start:b6008000 size:1b0080
+Nov 15 13:23:05 localhost mach_kernel: .Display_Rage128: using (1152x768@0Hz,16 bpp)
+Nov 15 13:23:05 localhost mach_kernel: UniNEnet: Ethernet address 00:03:93:03:4b:6a
+Nov 15 13:23:05 localhost mach_kernel: ether_ifattach called for en
+Nov 15 13:23:05 localhost mach_kernel: ipfw_load
+Nov 15 13:23:05 localhost mach_kernel: IP packet filtering initialized, divert enabled, rule-based forwarding enabled, default to accept, logging disabled
+Nov 15 13:23:06 localhost netinfod local[178]: setsid failed: Operation not permitted
+Nov 15 13:23:06 localhost lookupd[185]: lookupd (version 233) starting - Thu Nov 15 13:23:06 2001
+Nov 15 13:23:08 localhost sshd[228]: Server listening on 0.0.0.0 port 22.
+Nov 15 13:23:14 localhost mach_init[2]: added notification for sub-bootstrap
+Nov 15 13:23:17 localhost mach_kernel: Root power domain receiving initial preferences
+Nov 15 13:23:17 localhost mach_init[2]: added notification for sub-bootstrap
+Nov 15 13:23:17 localhost configd[121]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-automount
+Nov 15 13:23:46 localhost WindowServer[69]: CGXSetWindowProperty: Operation on a window not owned by you
+Nov 15 13:23:46 localhost WindowServer[69]: CGXInvalidateWindowShadow: Operation on a window not owned by you
+Nov 15 13:26:17 localhost mach_kernel: AppleNMI mask NMI
+Nov 15 13:26:21 localhost mach_kernel: UniNEnet:        0        0 UniNEnet::setPowerState - turning off cell clock!!!
+Nov 15 13:26:21 localhost mach_kernel: UniNEnet:        0        0 UniNEnet::setPowerState - turned off cell clock!!!
+Nov 15 13:26:21 localhost mach_kernel: System Sleep
+Nov 15 13:26:21 localhost mach_kernel: System Wake
+Nov 15 13:26:21 localhost mach_kernel: Wake event 0008
+Nov 15 13:26:21 localhost mach_kernel: AppleNMI unmask NMI
+Nov 15 13:26:21 localhost mach_kernel: ADB present:8c
+Nov 15 13:33:56 localhost mach_kernel: AppleNMI mask NMI
+Nov 15 13:33:57 localhost mach_kernel: UniNEnet:        0        0 UniNEnet::setPowerState - turning off cell clock!!!
+Nov 15 13:34:00 localhost mach_kernel: UniNEnet:        0        0 UniNEnet::setPowerState - turned off cell clock!!!
+Nov 15 13:34:00 localhost mach_kernel: System Sleep
+Nov 15 13:34:00 localhost mach_kernel: System Wake
+Nov 15 13:34:00 localhost mach_kernel: Wake event 0008
+Nov 15 13:34:00 localhost mach_kernel: AppleNMI unmask NMI
+Nov 15 13:34:00 localhost mach_kernel: ADB present:8c
+Nov 15 16:22:30 localhost mach_kernel: UniNEnet::monitorLinkStatus - Link is up at 100 Mbps - Half Duplex
+Nov 15 16:22:30 localhost mach_kernel: AppleNMI mask NMI
+Nov 15 16:22:30 localhost configd[121]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-AppleTalk
+Nov 15 16:22:31 localhost mach_kernel: UniNEnet:        0        0 UniNEnet::setPowerState - turning off cell clock!!!
+Nov 15 16:22:35 localhost mach_kernel: UniNEnet:        0        0 UniNEnet::setPowerState - turned off cell clock!!!
+Nov 15 16:22:35 localhost mach_kernel: UniNEnet:        0 8badf00d interruptOccurred - not ready
+Nov 15 16:22:35 localhost mach_kernel: System Sleep
+Nov 15 16:22:35 localhost mach_kernel: System Wake
+Nov 15 16:22:35 localhost mach_kernel: Wake event 0001
+Nov 15 16:22:35 localhost mach_kernel: AppleNMI unmask NMI
+Nov 15 16:22:35 localhost mach_kernel: ADB present:8c
+Nov 15 16:22:34 localhost configd[121]: DHCP en0: INIT transmit failed
+Nov 15 16:22:48 localhost mach_kernel: UniNEnet::monitorLinkStatus - Link is up at 100 Mbps - Half Duplex
+Nov 15 16:22:48 localhost mach_kernel: 
+Nov 15 16:22:53 localhost mach_kernel: Ethernet(UniN): Link is down.
+Nov 15 16:22:53 localhost mach_kernel: 
+Nov 15 16:22:53 localhost configd[121]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-AppleTalk
+Nov 15 16:22:57 localhost mach_kernel: UniNEnet::monitorLinkStatus - Link is up at 100 Mbps - Full Duplex
+Nov 15 16:22:57 localhost mach_kernel: 
+Nov 15 16:22:57 localhost configd[121]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-AppleTalk
+Nov 15 16:23:03 localhost mach_kernel: Ethernet(UniN): Link is down.
+Nov 15 16:23:03 localhost mach_kernel: 
+Nov 15 16:23:03 localhost configd[121]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-AppleTalk
+Nov 15 16:23:09 localhost mach_kernel: UniNEnet::monitorLinkStatus - Link is up at 100 Mbps - Half Duplex
+Nov 15 16:23:09 localhost mach_kernel: 
+Nov 15 16:23:09 localhost configd[121]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-AppleTalk
+Nov 15 16:23:14 localhost mach_kernel: Ethernet(UniN): Link is down.
+Nov 15 16:23:14 localhost mach_kernel: 
+Nov 15 16:23:15 localhost configd[121]: executing /System/Library/SystemConfiguration/Kicker.bundle/Resources/restart-AppleTalk

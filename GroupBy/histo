@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+use GroupBy::Histo;
+GroupBy::Histo::main();
+
+#  maybe do:
+#perl -MGroupBy::Histo -e GroupBy::Histo::main -- -p ipfw \!:*

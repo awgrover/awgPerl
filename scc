@@ -1,0 +1,110 @@
+#!/usr/bin/env perl
+# Uniform cli to source-control
+# --- -h
+# --- <command> -h
+# --- <command> <args>
+
+package SCC;
+
+use strict;
+use warnings; no warnings 'uninitialized';
+use File::Basename;
+BEGIN {
+    my $self=$0;
+    $self = readlink($self) if -l $self;
+    my $selfDir = dirname $self;
+    unshift @INC,$selfDir;
+    }
+use awgrover::Getopt;
+$awgrover::Getopt::gUndefIfFail=1;
+use Module::Find;
+use SCC::BaseCommand;
+
+# use Cwd;
+# use File::Basename;
+use Verbose;
+
+our $Options;
+
+sub main {
+    getOptions();
+    while (1) {
+        if (!scalar @ARGV) {
+            displayHelp();
+            last;
+            }
+
+        my $command = shift @ARGV;
+        $command =~ s/-/_/g;
+        my %ucommands = map { ($_,undef) } findsubmod('SCC::Commands');
+        my @commands = sort keys(%ucommands);
+        # my @commands = findsubmod('SCC');
+        vverbose 4,"inc: ",join(", ",@INC);
+        vverbose 4,"commands: ".join(", ", @commands);
+        my @possible = grep { /^SCC::Commands::$command/ } @commands;
+
+=off
+        # disabled: try straight for SCC::SCC::$sccName::Commands::$command
+
+        if (!scalar(@possible)) {
+            my $sccName = SCC::BaseCommand->findPrimarySCC();
+            if ($sccName) {
+                @possible = findsubmod('SCC::SCC::'.$sccName.'::Commands::'.$command);
+                vverbose 4,"possible in SCC::SCC::$sccName\::Commands::$command ",join(", ",@possible);
+                }
+            else {
+                warn "Couldn't determine SCC\n";
+                }
+            }
+=cut
+
+        if (!scalar(@possible)) {
+            warn "Unknown command\n";
+            displayHelp();
+            last;
+            }
+        elsif (scalar(@possible) > 1) {
+            warn "Ambiguous: ".join(", ",@possible)."\n";
+            displayHelp();
+            last;
+            }
+        else {
+            my $package = $possible[0];
+            vverbose 3,"Command $package";
+            eval "use $package"; die $@ if $@;
+            $package->doCommand(@ARGV);
+            last;
+            }
+        }
+    }
+
+sub displayHelp {
+    @ARGV = qw(-h);
+    getOptions();
+    }
+
+sub getOptions {
+    $Options = awgrover::Getopt::GetOptions (
+        '' => '<command> <args>  #Uniform cli to source-control, try "list"',
+        'help|h|H' => 'this',
+        'verbose|V:i' => 'debug level',
+        );
+    exit 1 if ! $Options;
+    $kVerbose = $Options->{'verbose'} || 1 if (defined $Options->{'verbose'});
+    verbose "Verbose set to $kVerbose";
+    }
+
+main();
+
+=pod
+
+=h1 Commands
+
+Looks for commands as a sub-package/file of SCC::Commands (in @INC), and invokes ...::doCommand(). 
+If there is no such package, try delegating:
+
+Each command typically will try to figure out the scc-name, and then delegate
+the command to package SCC::SCC::$sccName::Commands::$commandName::doCommand() 
+
+
+=cut

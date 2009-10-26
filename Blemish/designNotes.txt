@@ -1,0 +1,54 @@
+Detect changes
+Preserve files
+Resistent to hacking
+
+Detect
+¥rules 
+	like "check date/size/permissions"
+		can patch system to lie
+	like "md5 fingerprint"
+		slow
+		only for key files like top, sh, ps, md5, tar, gzip
+		should be resistant to lieing, since file has to be opened to run
+	like "set of files in dir"
+	like "log file shouldn't shrink"
+	processes? often patched to lie
+	netstat/
+¥Run periodically
+
+Resistant
+¥Private copy of files
+	md5
+	perl
+	and other things used to run
+	tar
+¥Resistant dirs for private copies
+	how to prevent rm -Rf?
+	can't. can't preserve everything
+	
+Preserve
+¥tar.gz the key dirs/commands
+
+How to allow changes?
+	inhibit mechanism ... uh.
+
+#######
+Packages
+	Blemish
+		Rule::FileInfo
+		...
+		# they return info to be diffed, such that we can tell if a file is changed
+		# "file X has changed, is missing..."
+		# So, put filename first
+
+Checkpoint
+	save = theRule->getState()
+	print SOMEFILE save
+	
+Validate..
+	curinfo = theRule->getState()
+	
+	diffs = diff(save,curinfo);
+	
+	foreach (changed, new, missing)
+		print diffs->....

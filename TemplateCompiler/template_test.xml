@@ -1,0 +1,7 @@
+<example someattrib="someval">
+<a b="bob">bob</a>
+<a b="notbob">notbob</a>
+<a b="bob"><c d="etc"/></a>
+plain
+<a b="bob">{{$hash.key1.madeIt}}</a>
+</example>

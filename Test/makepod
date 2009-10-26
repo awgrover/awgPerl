@@ -1,0 +1,4 @@
+#!/bin/sh
+set -x
+find . -name '*.pm' \
+| react -args make -f Website/Makefile '&&' echo '**/*.*'

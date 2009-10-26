@@ -1,0 +1,273 @@
+#!/usr/bin/env perl
+use strict; use warnings; no warnings 'uninitialized';
+
+use Test::More qw(no_plan);
+use Test::Website;
+use Sub::Override;
+use Carp;
+use Verbose;
+use Data::Dumper;
+
+# FIXME: test get & baseurl for http:
+
+mkdir '/tmp/htmlresults';
+system("find /tmp/htmlresults -type f | xargs -s 2000 rm");
+save_html '/tmp/htmlresults';
+
+should_fail(
+    2 => sub {
+        fail_on "should fail", id => 'span1-id';
+        $@ = undef;
+
+        get \*DATA or die;
+        }
+    );    
+@Test::Website::gOnResponse = ();
+
+close DATA;
+
+element 'html' or die;
+my $n = element 'html' or die;
+    $n->tag eq 'html' or die;
+element tag => 'html' or die;
+element not => { tag => 'xyzzy' } or die;
+element 'html', not => { tag => 'xyzzy' } or die;
+element maybe => {not => { tag => 'html' }} or die;
+element maybe => { tag => 'xyzzy' } and die;
+element maybe => { tag => 'html' } or die;
+element 'span' or die;
+element 'span', id => "span1-id" or die;
+element 'span', id => "span1-id", class => "span1-class" or die;
+my @n;
+@n = element xpath("//span");
+    @n == 2 or die;
+    $n[0]->tag eq 'span' or die;
+@n = element xpath("//span"), id => "span2-id";
+    @n == 1 or die;
+@n = element maybe => { tag => 'xyzzy'};
+    @n == 0 or die;
+defined(element maybe => { tag => 'xyzzy' }) && die;
+@n = element id => 'span1-id', id => 'span2-id';
+    @n == 2 or die;
+@n = element id => qr/span\d-id/;
+    @n == 2 or die;
+@n = element qr/^id|name$/ => 'adiv';
+    @n == 2 or die;
+@n = element 'span', n => 2;
+    @n == 1 or die;
+    $n[0]->attr('id') eq 'span2-id' or die;
+element text => 'text1' or die;
+element text => qr/text2/ or die;
+element maybe => {text => 'nonextanttext'} and die;
+element maybe => {text => qr/nosuchtext/} and die;
+basic_auth myUser => 'somepass';
+
+{
+    our $Params;
+    my $m = new Sub::Override('LWP::UserAgent::request',
+        sub {
+            my ($self, $request) = @_;
+            
+            $Params = $request->decoded_content;
+
+            return $Test::Website::Response;
+            }
+        );
+
+    submit "button1";
+    $Test::Website::Request->header('authorization') eq 'Basic bXlVc2VyOnNvbWVwYXNz' || die;
+    diffString('textfield1=tf1-value&radiofield1=rf1-value1&radiofield1=rf1-value2&checkboxfield1=cbf1-value1&checkboxfield1=cbf1-value2&checkboxfield2=cbf2-value1&textarea2=ta2-value&select2=select2-value2&select3=select3-value2&select3=select3-value3&select4=textonly&password1=password1-value&hidden1=hidden1-value&button1=button1-value',$Params);
+    $Test::Website::Request->header('authorization',undef);
+
+    my $field;
+    $field = set textfield2 => "newf2-value";
+
+    set textfield1 => undef;
+    set textarea1 => "new-ta1";
+    set textarea2 => undef;
+    set select2 => 'select2-value3';
+    should_fail(
+        sub { set select1 => 'nosuchoption' },
+        qr/^value not set, no such option/
+        );
+    set 'checkboxfield1';
+    set 'radiofield1';
+    set 'select5';
+    set select2 => qr/select2-value[23]/;
+    eval {set hidden1 => 'fail'}; die "expected 'Can't set hidden without', got $@" if !$@ || $@ !~ /Can't set hidden without/i; $@=undef;
+    set name=>'hidden1', force => 'hidden1-newvalue';
+    set name=>'select4', id=>'select4', value=>"textonly"; # null op, test the match
+    set select4=>"textonly"; # null op, test the match
+    basic_auth;
+    $Test::Website::Request->header('authorization') && die;
+    submit "button1";
+    diffString('textfield2=newf2-value&radiofield1=rf1-value1&checkboxfield1=cbf1-value0&checkboxfield1=cbf1-value1&checkboxfield1=cbf1-value2&checkboxfield1=cbf1-value3&checkboxfield2=cbf2-value1&textarea1=new-ta1&select2=select2-value2&select3=select3-value2&select3=select3-value3&select4=textonly&select5=select5-value1&select5=select5-value2&select5=select5-value3&password1=password1-value&hidden1=hidden1-newvalue&button1=button1-value', $Params);
+}
+
+should_fail( sub { follow id => 'none' }, qr/^link not found/ );
+should_fail( sub { follow id => 'span1-id' }, qr/^that's not a link:/ );
+
+{
+    our $Url;
+    my $m = new Sub::Override('Test::Website::Element::_get',
+        sub {
+            my ($k, $command, $k2, $url) = @_;
+            
+            $Url = $url;
+
+            return $Test::Website::Response;
+            }
+        );
+
+    follow id => 'a1' or die;
+        $Url eq 'a1-href' or die "found $Url";
+    follow 'a2-href' or die;
+        $Url eq 'a2-href' or die "found $Url";
+
+    my $l = element href => 'a2-href' or die;
+    follow $l;
+        $Url eq 'a2-href' or die "found $Url";
+}
+should_fail( sub {follow 'http://localhost/notthereatall'}, qr/^link not found/ );
+
+Test::Website::Log::trace(1, DONE => { OK => "All Done"});
+
+sub diffString {
+    my ($expected, $found) = @_;
+    my ($why, $fail);
+    foreach my $i (0..length($expected)) {
+        if (substr($expected,$i,1) ne substr($found,$i,1)) {
+            $why .= "\n\tfound:".substr($found,$i) . "\n\texpected:".substr($expected,$i);
+            $fail = 1;
+            last;
+            }
+        else {
+            $why .= substr($expected,$i,1);
+            }
+        }
+    croak "No match: $why\n\t" if $fail;
+    }
+
+sub should_fail {
+    # Wrap a test-that-should-fail, to give OK if it fails correctly
+    # a [numbered] thunk that invokes a test,
+    # an optional string/regex to match the die message
+
+    my $n;
+    if ($_[0] =~ /^\d+$/) {
+        $n = shift;
+        $n--;
+        }
+    else {
+        $n = 0;
+        }
+
+    my ($thunk, $message) = @_;
+
+    my $Test = Test::Builder->create;
+
+    # environment for substituted test-builder
+    my $expected;
+    my @expected;
+    my $capture;
+    {
+        no warnings 'redefine';
+        local *Test::Builder::new = sub { return $Test };
+        use warnings 'redefine';
+        open my $fh, ">", \$capture;
+            die "Couldn't make a in-memory-file, $!" if !$fh;
+        $Test->output($fh);
+        $Test->failure_output($fh);
+        $Test->todo_output($fh);
+
+        $Test->plan( tests => 1);
+        $@ = undef;
+        eval {&$thunk();};
+        close $fh;
+        
+        $capture = (grep {/^ok |not ok /} split("\n",$capture))[$n];
+
+        # vverbose 0,"res: $capture, Died as: ".$@;
+        if (defined $message) {
+            if (!$@) {
+                push @expected, "a 'die' message $message, test result was: ".$capture;
+                }
+            elsif ($@ !~ $message) {
+                push @expected, "a 'die' message $message, found: $@, test result was: ".$capture;
+                }
+            }
+        $@ = undef;
+
+        if ($capture !~ /^not ok /) {
+            push @expected, "'not ok' result, found: $capture";
+            }
+
+        if (@expected) {
+            $expected = "\nExpected ".join("\nExpected ",@expected);
+            }
+    } # end local Test::Builder::new
+
+    ok( scalar(@expected) == 0, "should be 'not ok': $capture".$expected);
+    }
+        
+        
+
+# html for testing
+__DATA__
+Headers: ...
+
+<html>
+    <body>
+        <!-- only 2 spans -->
+        <span id="span1-id" class="span1-class"></span>
+        <span id="span2-id" class="span1-class"></span>
+        <div id="adiv"></div>
+        <div name="adiv"></div>
+        <div>text1</div>
+        <div id="textdiv">some text2 other</div>
+        <form method="POST" action="bob">
+            <input type="text" name="textfield1" value="tf1-value" />
+            <input type="text" name="textfield2" />
+            <input type="radio" name="radiofield1" value="rf1-value1" checked />
+            <input type="radio" name="radiofield1" value="rf1-value2" checked="checked" />
+            <input type="radio" name="radiofield1" value="rf1-value3" />
+            <input type="checkbox" name="checkboxfield1" value="cbf1-value0"/>
+            <input type="checkbox" name="checkboxfield1" value="cbf1-value1" checked />
+            <input type="checkbox" name="checkboxfield1" value="cbf1-value2" checked="checked" />
+            <input type="checkbox" name="checkboxfield1" value="cbf1-value3" />
+            <input type="checkbox" name="checkboxfield2" value="cbf2-value1" checked />
+            <textarea name="textarea2">ta2-value</textarea>
+            <textarea name="textarea1"></textarea>
+            <select name="select1">
+                <option value="select1-value1">sometext</option>
+            </select>
+            <select name="select2">
+                <option value="select2-value1">sometext</option>
+                <option value="select2-value2" selected>sometext</option>
+                <option value="select2-value3">sometext</option>
+            </select>
+            <select name="select3" id="select3">
+                <option value="select3-value1">sometext</option>
+                <option value="select3-value2" selected>sometext</option>
+                <option value="select3-value3" selected="selected">sometext</option>
+            </select>
+            <select name="select4" id="select4">
+                <option selected>textonly</option>
+            </select>
+            <select name="select5" multiple>
+                <option value="select5-value1">v1</option>
+                <option value="select5-value2">v2</option>
+                <option value="select5-value3">v3</option>
+            </select>
+            <select name="select6">
+                <option value="1"></option>
+            </select>
+            <input type="password" name="password1" value="password1-value" />
+            <input type="hidden" name="hidden1" value="hidden1-value" />
+            <input type="submit" name="button1" value="button1-value" />
+            <input type="submit" name="button2" value="button2-value" />
+        </form>
+        <a id="a1" href="a1-href">a1's text</a>
+        <a id="a2" href="a2-href">a2's text</a>
+    </body>
+</html>

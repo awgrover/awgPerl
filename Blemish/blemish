@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+BEGIN {
+        $cmd = $0;
+        $thisDir = `dirname $cmd`;
+        chomp $thisDir;
+        chdir $thisDir;
+
+        if (-l $cmd)
+                {
+                $cmd = readlink $0;
+                $thisDir = `dirname $cmd`;
+                chomp $thisDir;
+                chdir $thisDir;
+                }
+        }
+
+use lib "..";
+
+use Blemish::CollectInfo;
+Blemish::CollectInfo::main();
+

@@ -1,0 +1,9 @@
+Currently using
+Test::Harness based testing. The "Ok", "Fail" output standard.
+
+use Test::Behaviour::Spec; # for ruby'ish style
+use Test::More; # for procedural style
+use Test::More 'no_plan';
+use Test::Differences;
+use Sub::Override;
+

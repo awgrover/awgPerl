@@ -1,0 +1,24 @@
+FileInfo
+	directory .
+	exclude CVS
+	exclude checkpoint
+	exclude test
+FileInfo
+	directory /usr/bin
+	directory /bin
+	directory /usr/sbin
+	directory /sbin
+	directory /usr/local/bin
+	directory /usr/local/sbin
+	directory /Library/StartupItems
+	directory /Library/Internet Plug-Ins
+	directory /Library/Java/Extensions
+	directory /Library/WebServer
+	directory /System/Library/Authenticators
+	directory /System/Library/CFMSupport
+	directory /System/Library/CoreServices/Dock.app/Contents/MacOS
+	directory /System/Library/CoreServices/Finder.app/Contents/MacOS
+	directory /System/Library/OpenSSL/lib
+	directory /System/Library/StartupItems
+	directory /System/Library/SystemConfiguration
+	directory /etc/rc.d
