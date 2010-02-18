@@ -49,6 +49,25 @@ The attr and value can be:
         qr//
         sub(HTML::Element) {return t/f} # not implemented yet
 
+Notes on regex's:
+
+For your convenience, a predicate of { text => qr/..../ } will capture the match as an arrayref HTML::Element->attr('_re').
+The first element of the arrayref is the entire regex match, and then your capturing parenthesis. E.g.
+
+    $res = element text => qr/login (for admin)/;
+    ($wholeMatchedRegex, $justForAdmin) = @{ $res->attr('_re') };
+
+The HTML::Element->look_down() method is used to find elements that match the predicate. It appears to
+to have this peculiar behavior:
+
+    $ matches the end of the text (not end-of-line)
+    . does not match end-of-lines
+
+So, qr/.+$/ will typically fail. But, qr/blah blah.+/ will match to the end of line. You can specify
+regex flags, 'm' and 's', to get the behavior you desire. E.g qr/blah+.$/m will match till end of line.
+
+Also, given that you supply the regex via qr//, you can't specify the 'g' flag.
+
 =head4 psuedo attr: tag
 
 The tag-name, e.g. "html"
@@ -116,7 +135,7 @@ For
 sub buildPredicate {
     tie my %args, 'Test::Website::Element::PredicateList' => @_;
 
-    vverbose 2,"build: ",join("=>",%args);
+    vverbose 2,"build: ",join("=>",map {"$_(".ref($_).")=>".$args{$_}} keys %args);
     my @and;
 
     # not
@@ -150,7 +169,7 @@ sub buildPredicate {
 
                 # since the test-attribue-name could be a regex,
                 # we have to filter for candidate attributes
-                vverbose 4,"setup for ".join(",",@$testValues)." vs $testAttr";
+                vverbose 4,"setup for $testAttr = ".join(",",@$testValues)." in attributes ".join(", ",$node->all_attr_names());
                 my @candidateValues = 
                     map {
                         vverbose 4, "    candidate value for $_ ==? $testAttr";
@@ -162,10 +181,12 @@ sub buildPredicate {
                             }
                         }
                     grep {
-                        ref($testAttr) eq 'Regexp'
+                        my ($r) = (ref($testAttr) eq 'Regexp')
                             ? $_ =~ $testAttr
                             : $_ eq ($testAttr eq 'tag' ? '_tag' : $testAttr)
                             ;
+                        vverbose 6,"## filter: is extant attr '$_' match for ".ref($testAttr)." $testAttr? -> '$r'";
+                        $r;
                         } ($node->all_attr_names(),'text');
                 
                 vverbose 4,"  candidate attr ct ".@candidateValues," : ",join(", ",@candidateValues);
@@ -383,7 +404,22 @@ sub _element {
     if (defined $ith) {
         @elements = $elements[$ith];
         }
-    
+   
+    # gather the regex matches for the text thing
+    if (defined $args{'text'} && ref($args{'text'}) eq 'Regexp') {
+        my $regex = $args{'text'};
+        # vverbose 0,"TExT regex $regex";
+        foreach my $element (@elements) {
+            foreach ($element->content_list) {
+                if (!ref $_) {
+                    if (my @res = ($_ =~ /($regex)/)) {
+                        # vverbose 0,"HIT in $_ \t::".join("\n\t::",@res)."\n";
+                        $element->attr('_re', \@res);
+                        }
+                    }
+                }
+            }
+        }
     return  wantarray ? @elements : (scalar(@elements) ? $elements[0] : undef);
     }
 

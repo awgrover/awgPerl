@@ -39,7 +39,7 @@ For:
 
 For: 
 
-    "use button named... OR form id/action/name|n ..."
+    "use button named/value... OR form id/action/name|n ..."
 
 =head2 submit href => "...", fields => { k=>v,...}
 
@@ -48,28 +48,41 @@ Submits a synthesized POST.
 =cut
 
 sub submit {
-    my ($buttonName, $explicitParams) = @_;
-
-    my @args;
-    if (defined $buttonName) {
-        @args = (
-           qr/^(id|name|action)$/ => $buttonName
-           );
-       }
+    # submit
+    # submit pred...
+    # submit $buttonname
+    # submit $buttonname, pred...
+    # submit href => $url, fields => ... 
+    my ($buttonName, %args, $explicitParams);
+    vverbose 1,"\@_ ",join(",", @_);
+    if ( (scalar(@_) % 2) == 0) {
+        tie %args, 'Test::Website::Element::PredicateList' => @_;
+        if (@_ == 0) {
+            tie %args, 'Test::Website::Element::PredicateList' => ( tag => 'input', type => 'submit');
+            }
+        elsif (defined $args{'href'}) {
+            die "Not Implemented! submit href=>...";
+            }
+        }
     else {
-       @args = ( tag => 'input', type => 'submit');
-       }
+        $buttonName = shift @_;
+        tie %args, 'Test::Website::Element::PredicateList' => @_;
+        $args{qr/^(id|name|action|value)$/} = $buttonName;
+        }
 
+    my $moreParams = delete($args{'moreParams'});
+
+    vverbose 1,"args ",join(",",%args);
     # button (or form)
-    my $button = _element(@args);
+    my $button = _element(%args);
     if (!$button) {
-        trace(0, 'submit' => {@args}, because => "No submit-button found");
+        trace(0, 'submit' => {%args}, because => "No submit-button found");
         }
    
     if (!(
             $button->tag =~ /^form|button$/ 
             || ($button->tag eq 'input' && $button->attr('type') eq 'submit'))) {
-        trace(0, 'submit' => {@args}, because => "Not form/button nor submit (tag = ".$button->tag.", type = ".$button->attr('type').")");
+        trace(0, 'submit' => {%args}, because => "Not form/button nor submit (tag = ".$button->tag.", type = ".$button->attr('type').")");
         }
     verbose "Submit via ".$button->starttag;
 
@@ -105,15 +118,23 @@ sub submit {
             push @params, ($button->attr('name'), $button->attr('value'));
             }
         }
+    if ($moreParams) {
+        if (ref($moreParams) eq 'ARRAY') {
+            push @params, @$moreParams
+            }
+        else {
+            push @params, %$moreParams
+            }
+        }
         
-    vverbose 2,"submit params ".join(", ",@params);
+    vverbose 1,"submit params ".join(", ",@params);
     croak "file upload not implemented for ".$formInfo->starttag if $hasFile;
 
     # FIXME: implement these?
     my $debug = undef;
 
     my $url = $formInfo->attr('action');
-    $url = $HTML::WebTest::Response->request->uri->clone if ((!defined($url) || $url eq '') && $formInfo->attr('method') =~ /^get$/i); 
+    $url = $Test::Website::Response->request->uri->clone if ((!defined($url) || $url eq '') && $formInfo->attr('method') =~ /^get|post$/i); 
     croak "Url for the submit was empty" if !$url;
     return
         _get(command=>'submit',
@@ -233,83 +254,84 @@ sub set {
     # xpath(), ...
     # force => [ preds ]
 
+    my %args;
+
     my ($tryKVFallback, $force);
 
     # xpath & 'name' short-hands
     if (@_ == 1) {
         if (ref $_[0] eq 'XPATH') {
-            @_ = ( xpath => $_[0] );
+            %args = ( xpath => $_[0] );
             }
         else {
-            @_ = (name => shift, value => qr/./);
+            %args = (name => shift, value => qr/./);
             }
         }
     
     # fixup 'force', then deal with n=>v idiom
     else {
+        tie %args, 'Test::Website::Element::PredicateList' => @_;
         # force becomes value
+        if (exists $args{'force'}) {
+            $force = 1;
+            $args{'value'} = delete $args{'force'};
+            vverbose 4,"found force value ".$args{'value'};
+            }
+=off
         foreach my $i (0..($#_ / 2)) {
             if ($_[$i*2 - 1] eq 'force') { 
                 $force = 1;
                 my $value = $_[$i*2 ];
                 splice(@_, $i*2 - 1,2);
                 splice(@_, 1, 0, $value);
-                vverbose 4,"found force value $value at ".($i*2 -1).": ",join(", ",@_);
                 last;
                 }
             }
+=cut
         
         my $explicitValue;
-        foreach my $i (0..($#_ / 2)) {
-            if ($_[$i*2] eq 'value') {
-                $explicitValue = 1;
-                last;
-                }
+        if (exists $args{'value'}) {
+            $explicitValue = 1;
             }
 
         # either 'name'=>'value',... or k=>v,... (if we had $force, we had explicit value)
-        if (!$force && !$explicitValue ) {
+        if (!$explicitValue) {
             $tryKVFallback = 1; # we might have guessed 'name'=>'value' wrong
             my ($n,$v) = (shift, shift);
             unshift @_, ( name => $n, value => $v );
+            tie %args, 'Test::Website::Element::PredicateList' => @_;
             }
         }
         
-    croak "Even number of args expected" if @_ %2;
-    verbose 0,"set args: ".join(", ",@_);
+    verbose 0,"set args: ".join(", ",%args);
 
     my @forms = _element(_tag => 'form');
     foreach (@forms) {
         formInfo($_); # add _fields, etc.
         }
     if (!@forms) {
-        trace(0, set => {@_}, because => "no form found");
+        trace(0, set => {%args}, because => "no form found");
         }
 
     # remove the 'value' pred, it might mean "unset" or "here's the new value"
     my ($value, $hasValue);
-    foreach my $i (0..($#_ / 2)) {
-        if ($_[$i*2] eq 'value') { 
-            $hasValue = 1;
-            $value = $_[$i*2 +1];
-            splice(@_, $i*2,2);
-            vverbose 8,"removed value $value at $i*2: ",join(", ",@_);
-            }
+    if (exists $args{'value'}) {
+        $hasValue = 1;
+        $value = delete $args{'value'};
+        vverbose 8,"removed value $value ",join(", ",%args);
         }
 
-    vverbose 4,"find field ".join(", ",@_);
+    vverbose 1,"find field ".join(", ",%args);
 
     # because 'value' may be a predicate for check/radio/select
     # we need to get a long candidate list, then possibly filter
-    my $field = _element(_formfieldtype => qr/^text|password|textarea|file|select|checkbox|radio|hidden$/, @_);
+    my $field = _element(_formfieldtype => qr/^text|password|textarea|file|select|checkbox|radio|hidden$/, %args);
     if (!$field && $tryKVFallback) {
         # revert from name=>'n', value => 'a' to:
         # n=>a as if 'n' was an attribute name, and 'a' was it's value
-        shift @_;
-        my $a = shift @_;
-        shift @_;
-        my $v = shift @_;
-        unshift @_, ($a => $v);
+        my $a = delete $args{'name'};
+        my $v = delete $args{'value'};
+        $args{$a} = $v;
         vverbose 0,"revert to $a => $v";
 
         $field = _element(_formfieldtype => qr/^text|password|textarea|file|select|checkbox|radio|hidden$/, @_);
@@ -322,16 +344,16 @@ sub set {
                 . join("\n\t\t", map { $_->starttag } @{ $_->attr('_fields') }) 
                 } @forms)
             ;
-        trace(0, set => {@_, ($hasValue ? (value=>$value) : ())}, because => "Field not found".($hasValue ? " ('value' not used as predicate)" : "") . $ancestry);
+        trace(0, set => {%args, ($hasValue ? (value=>$value) : ())}, because => "Field not found".($hasValue ? " ('value' not used as predicate)" : "") . $ancestry);
         }
 
     if (ref($value) eq 'Regexp' 
             && !($field->tag eq 'select'
                 || $field->tag eq 'input' && $field->attr('type') =~ /^checkbox|radio$/)) {
-        trace(0, set => {@_}, because => "Can't set value to a regex ($value) for ".$field->starttag);
+        trace(0, set => {%args}, because => "Can't set value to a regex ($value) for ".$field->starttag);
         }
 
-    croak "Can't set ".$field->attr('type')." without 'force': set force=>[".join(", ",@_)."]"
+    croak "Can't set ".$field->attr('type')." without 'force': set force=>[".join(", ",%args)."]"
         if $field->tag eq 'input' && $field->attr('type') eq 'hidden' && !$force;
 
     vverbose 2,"set ".$field->starttag," = $value";
@@ -341,7 +363,7 @@ sub set {
     my $ok =1;
     if (defined $value) {
         $ok = @$newValues ? 1 : 0;
-        vverbose 2,"set for spec [".join(', ',@_)."], v='$value', new=",join(",",@$newValues);
+        vverbose 2,"set for spec [".join(', ',%args)."], v='$value', new=",join(",",@$newValues);
         $because = "value not set";
         if ($field->attr('_formfieldtype') eq 'select') {
             $because .= ", no such option '$value' in: "
@@ -349,7 +371,7 @@ sub set {
                 ;
             }
         }
-    trace($ok, set => {@_}, because => $because);
+    trace($ok, set => {%args}, because => $because);
 
     return $field;
     }
@@ -359,11 +381,11 @@ sub set {
 An extension to HTML::Element, gives the "value" of a formfield:
 
     my $e = element 'select', name => "state";
-    my $itsvalue = $e->value;
+    my $itsvalue = $e->form_field_value;
 
 Will set the fields "value" if $value is given.
 
-    $e->value("MD");
+    $e->form_field_value("MD");
 
 Works roughly like so:
 
@@ -384,6 +406,8 @@ sub HTML::Element::form_field_value {
     
     vverbose 4,"field ".$field->starttag.($shouldSet ? (defined($newValue) ? " '$newValue'" : ' undef'): '');
     return [] if !defined $field->attr('name');
+
+    Test::Website::Form::formInfo($field);
 
     my @values;
     if ($field->tag eq 'input') {
@@ -506,8 +530,8 @@ sub formInfo {
     # where a 'select' element has _options = list of option HTML::Elements
     my ($elementNode) = @_;
 
-    my $form = $elementNode->look_up(_tag => 'form');
-    vverbose 0,"no form" if !$form;
+    my $form = $elementNode->attr('_form') || $elementNode->look_up(_tag => 'form');
+    vverbose 0,"no form for ".$elementNode->starttag." whose parent is ".$elementNode->parent->starttag if !$form;
     return undef if !$form;
     vverbose 1,"found form ".$form->starttag;
 
@@ -528,7 +552,7 @@ sub formInfo {
             }
 
         # selects get their options
-        next unless $_->tag eq 'select';
+        next unless $_->tag =~ /^select$/i;
         $_->attr('_options', [ $_->look_down(_tag => 'option') ]);
         }
 

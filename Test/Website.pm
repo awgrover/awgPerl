@@ -318,6 +318,8 @@ sub _get
 		
 	die "Content\n",$Request->content,"\n " if $debug;
         vverbose(1,$method."ing $url...");
+        vverbose 2,"as: ",$Request->as_string;
+        vverbose 4,"Last response was ".$Response->as_string if $Response;
 
         # all the GLOB stuff is the "get \*FH" hack stuff
         if (ref($url) eq 'GLOB' || ref($url) eq 'IO::File') {
@@ -330,6 +332,7 @@ sub _get
             $Response = UA->request($Request);
             }
 	
+        vverbose 2,"REsponse was ".$Response->as_string;
         vverbose(1,"save file... ".$Response->status_line);
 	my @size = ($Response->is_success) ? (bytes=>length($Response->content)) : ();
 	my @content = ($Response->is_success) ? () : (content=>$Response->status_line);
@@ -501,6 +504,7 @@ END {
 # Our own useragent class because of a bug in LWP
 package Test::Website::UserAgent;
 use base qw(LWP::UserAgent);
+use Verbose;
 
 # On redirect, do not send "old" content (i.e. post data)
 sub redirect_ok
