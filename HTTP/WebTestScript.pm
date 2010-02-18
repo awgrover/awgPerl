@@ -343,7 +343,7 @@ sub clickLink
 		href=>$href,name=>$name, text=>$text, id=>$id);
 
 	trace( ($tag ? 1 : 0),
-		clickLink=>{description=>$comment,name=>$name,text=>$text,
+		verify_clickLink=>{description=>$comment,name=>$name,text=>$text,
 			href=>$href, id=>$id,
 			($tag ? () : (failed=>"not found"))
 		});	
@@ -355,7 +355,7 @@ sub clickLink
 
 	my $url = $tag->[1]->{'href'};
 
-	HTTP::WebTestScript::_get(command=>'clickLink',url=>$url, description=>$comment,
+	HTTP::WebTestScript::_get(command=>'get_via_clickLink',url=>$url, description=>$comment,
 		method=>'GET', base => $gResponse->base);	
 	}
 
