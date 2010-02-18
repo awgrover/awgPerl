@@ -14,7 +14,7 @@ $kVerbose = $SCC::kVerbose;
 sub usage {
     my $self=shift;
     my ($command) = @_;
-    return $command.' <options> "message"  # commits changes with message'
+    return $command.' <options> "message"  [files] # commits changes with message'
     }
 
 sub optionDesc {
@@ -36,8 +36,11 @@ sub doCommand {
     vverbose 4,"after getoptions";
 
     my $scc = $self->findPrimarySCC();
-    my $msg = $ARGV[0];
-    system($self->knownSCC->{$scc}->{'command'}." ".SH::quote($msg));
+    my $msg = shift @ARGV;
+    my @files = map {SH::quote($_)} @ARGV;
+    my $command = (@files && $self->knownSCC->{$scc}->{'command_with_files'}) 
+        || $self->knownSCC->{$scc}->{'command'};
+    system($command." ".SH::quote($msg)." ".join(" ",@files));
     }
 
 1;

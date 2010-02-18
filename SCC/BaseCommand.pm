@@ -78,7 +78,7 @@ our %KnownSCC = (
     cvs => { control_dir => 'CVS', uptree => 0, command => 'cvs commit -m' },
     tla => { control_dir => '{arch}', uptree => 1, command => 'tla commit -s' },
     # svn
-    git => { control_dir => '.git', uptree => 1, command => 'git commit -a -m' },
+    git => { control_dir => '.git', uptree => 1, command => 'git commit -a -m', command_with_files => 'git commit -m' },
     svn => { control_dir => '.svn', uptree => 1, command => 'svn commit -m' }
     );
 our %Dir2SCC;
