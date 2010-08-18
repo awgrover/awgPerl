@@ -12,6 +12,24 @@ use strict;
 #       nb: reads the file into memory.
 # $html = $htmlizer->html
 
+=pod
+
+=head1 Patterns
+
+  [n]footnote-text
+  more footnote text
+  [n]footnote-text\n\n
+
+  paragraph\n\n
+
+  ...text with footnote[n]...
+
+  http:url, text (no ". Cap"),
+  http:url-till-space-or-trailing-punct (but allows trailing /)
+  Allows https
+
+=cut
+
 use Tie::InsertOrderHash;
 use CGI qw(escapeHTML); # just for escapeHTML
 use Verbose;
@@ -67,6 +85,7 @@ our %Rules;
     # You must escapeHTML/urlEscape your strings
 
     # pre is special, done first just with 'g'
+    # This is just cleanup
     pre => [ # done with 'g' flag, iteratively
         # \n \s cleanup
         [qr/^[\s\n]*\n/s => ''],
@@ -79,6 +98,23 @@ our %Rules;
 
     paragraph => orderedHash(
         # list of [ qr/.../ => string | sub
+
+        # code/pre
+        code => [
+            [qr/^\s+(.+?)(\n\n|$)/s => sub {
+              return ['<pre style="margin-left: 5em"><code>',$1,'</code></pre>'];
+              }
+            ]
+          ],
+        # Headline: ++++...
+        headLine => [
+          [qr/(\++)\s+(.+?)(\n\n+|$)/s => sub {
+            my ($h, $body) = ($1,$2);
+            my $hct = length($h);
+            return ["<h$hct>",recurseParse($Rules{'chunk'}, $body),"</h$hct>\n\n"];
+            }
+          ]
+          ],
 
         # footer-notes start with [n]....
         # and go until $, next-footnote, or \n\n
@@ -165,6 +201,7 @@ our %Rules;
                 }],
             ],
 
+
         # <p> paragraphs end with \n\n or $
         p => [
             # p's are ended by \n\n+
@@ -185,6 +222,7 @@ our %Rules;
         # The patterns are tried in the order given (as if a flat space).
         # But, if you call parseRecurse, it will skip the current "name"
         
+
         footnote => [
             # list of [ qr/.../ => string | sub ]
             [qr/\s*\[(\d+)\]/ => sub {
@@ -209,12 +247,13 @@ our %Rules;
                 }],
             ],
 
-        http => [
+
+        http => [ # or https
             # tricky, fail if ". Cap"
-            [qr/(http:[^ ]+?), ((?:.(?!\. [A-Z]))+?),/ => sub{
+            [qr/(https?:[^ ]+?), ((?:.(?!\. [A-Z]))+?),/ => sub{
                 "<a href='$1'>".escapeHTML($2)."</a>";
                 }],
-            [qr/http:.+?(?=[[:punct:]]?(?:\s|$))\/?/ => sub{
+            [qr/https?:.+?(?=[[:punct:]]?(?:\s|$))\/?/ => sub{
                 "<a href='$&'>".escapeHTML($&)."</a>";
                 }],
             ],
