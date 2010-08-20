@@ -28,6 +28,18 @@ use strict;
   http:url-till-space-or-trailing-punct (but allows trailing /)
   Allows https
 
+  <space>Code\n\n
+
+  +++ Header n (count +)\n\n
+
+  *** outline n deep...
+
+  !TOC\n\n # generates a table-of-contents
+
+  _italic_
+
+  *bold*
+
 =cut
 
 use Tie::InsertOrderHash;
@@ -71,6 +83,16 @@ has _footerNotesRaw => ( # saved up raw footer-notes so far
     default => sub { {} }
     );
 
+has _headLines => ( # saved up headlines
+    is => 'rw',
+    default => sub { [] }
+    );
+
+has _li_depth => ( # saved up headlines
+    is => 'rw',
+    default => sub { 0 }
+    );
+
 no Moose;
 
 # Locals for the rules and parsing
@@ -99,10 +121,73 @@ our %Rules;
     paragraph => orderedHash(
         # list of [ qr/.../ => string | sub
 
-        # code/pre
+        # UL/li
+        list => [
+            # see footer for trickiness
+            [qr/(\*+)\s+(.+?)(\n\n+|(?:(?=\n\*)\n)|$)/s => sub{
+              my ($l, $body, $eol) = ($1, $2, $3);
+              my $was = $self->_li_depth;
+              my $depth = length($l);
+              my (@more, @more_post);
+              if ($self->_li_depth < $depth) {
+                push @more, "<ul>\n";
+                $self->_li_depth( $depth );
+                }
+              elsif ($self->_li_depth > $depth) {
+                push @more, "</ul>\n";
+                $self->_li_depth( $depth );
+                }
+
+              if ($eol && (length($eol) > 1 || length($eol) == 0)) {
+                while ($self->_li_depth > 0) {
+                  push @more_post, "</ul>\n";
+                  $self->_li_depth( $self->_li_depth - 1);
+                  }
+                }
+
+              return [@more, "<li>", recurseParse($Rules{'chunk'}, $body), "</li>\n", @more_post];
+              }
+            ]
+          ],
+
+        # !TOC
+        toc => [
+            [qr/!TOC\n\n+/s => sub {
+
+              return [
+                "<h3>Table of Contents</h3>\n\n<ul>",
+                # delayed generation
+                sub { 
+                  my @rez;
+                  my $cur_depth = 2;
+                  foreach (@{$self->_headLines}) {
+                    my ($depth, $text, $anchor) = @$_;
+                    next if $depth == 1;
+                    if ($depth == $cur_depth) {
+                      }
+                    elsif ($depth > $cur_depth) {
+                      push @rez, "<ul>\n";
+                      $cur_depth = $depth;
+                      }
+                    elsif ($depth < $cur_depth) {
+                      push @rez, "</ul>\n";
+                      $cur_depth = $depth;
+                      }
+
+                    push @rez, "<li><a href='#$anchor'>",escapeHTML($text),"</a></li>\n";
+                    }
+                  return @rez;
+                  },
+                "</ul>\n\n"
+                ];
+              }
+            ]
+          ],
+
+        # code/pre: leading spaces
         code => [
-            [qr/^\s+(.+?)(\n\n|$)/s => sub {
-              return ['<pre style="margin-left: 5em"><code>',$1,'</code></pre>'];
+            [qr/^(\s+)(.+?)(\n\n+|$)/s => sub {
+              return ['<pre style="margin-left: 5em"><code>',$1,escapeHTML($2),"</code></pre>\n\n"];
               }
             ]
           ],
@@ -111,7 +196,13 @@ our %Rules;
           [qr/(\++)\s+(.+?)(\n\n+|$)/s => sub {
             my ($h, $body) = ($1,$2);
             my $hct = length($h);
-            return ["<h$hct>",recurseParse($Rules{'chunk'}, $body),"</h$hct>\n\n"];
+            my $anchorName = lc($body);
+            $anchorName =~ s/\W/_/g;
+            $anchorName =~ s/_+/_/g;
+            $anchorName =~ s/^_//;
+            $anchorName =~ s/_$//;
+            push @{$self->_headLines}, [ $hct, $body, $anchorName ];
+            return ["<a name='$anchorName'><h$hct>",recurseParse($Rules{'chunk'}, $body),"</h$hct></a>\n\n"];
             }
           ]
           ],
@@ -256,6 +347,20 @@ our %Rules;
             [qr/https?:.+?(?=[[:punct:]]?(?:\s|$))\/?/ => sub{
                 "<a href='$&'>".escapeHTML($&)."</a>";
                 }],
+            ],
+
+        underline => [ # _xxx_
+            [qr/(^|\s)_(.+?)_(?=\W|$)/ => sub {
+              my ($before, $body) = ($1,$2);
+              [$before,"<em>",@{ recurseParse($Rules{'chunk'}, $body)},"</em>"]
+              }],
+            ],
+
+        bold => [ # *xxx*
+            [qr/(^|\s)\*(.+?)\*(?=\W|$)/ => sub {
+              my ($before, $body) = ($1,$2);
+              [$before,"<b>",@{ recurseParse($Rules{'chunk'}, $body)},"</b>"]
+              }],
             ],
         ),
 
