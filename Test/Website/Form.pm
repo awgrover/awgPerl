@@ -4,6 +4,7 @@ use base qw(Exporter);
     submit
     set
     unset
+    dump_forms
     );
 
 use import qw(
@@ -53,36 +54,60 @@ sub submit {
     # submit $buttonname
     # submit $buttonname, pred...
     # submit href => $url, fields => ... 
-    my ($buttonName, %args, $explicitParams);
+    my ($buttonName, %args);
     vverbose 1,"\@_ ",join(",", @_);
-    if ( (scalar(@_) % 2) == 0) {
+    if (@_ == 0) {
+        tie %args, 'Test::Website::Element::PredicateList' => ( tag => 'input', type => 'submit');
+        submit_form(\%args);
+        }
+    elsif ( (scalar(@_) % 2) == 0) {
         tie %args, 'Test::Website::Element::PredicateList' => @_;
-        if (@_ == 0) {
-            tie %args, 'Test::Website::Element::PredicateList' => ( tag => 'input', type => 'submit');
+        if (defined $args{'href'}) {
+            submit_explicit($args{'href'}, $args{'fields'});
             }
-        elsif (defined $args{'href'}) {
-            die "Not Implemented! submit href=>...";
+        else {
+            submit_form(\%args);
             }
         }
     else {
         $buttonName = shift @_;
         tie %args, 'Test::Website::Element::PredicateList' => @_;
         $args{qr/^(id|name|action|value)$/} = $buttonName;
+        vverbose 0,"Form";
+        submit_form(\%args);
         }
+    }
 
-    my $moreParams = delete($args{'moreParams'});
+sub submit_explicit {
+    my ($href, $fields) = @_;
+    
+    return
+        _get(command=>'submit',
+            url=>$href,
+            method=>'POST',
+            params=> ref($fields) eq 'HASH' ? [%$fields] : $fields,
+            # fileUpload=>$hasFile,
+            # debug=>$debug
+            );
 
-    vverbose 1,"args ",join(",",%args);
+    }
+
+sub submit_form {
+    my ($args) = @_;
+
+    my $moreParams = delete($args->{'moreParams'});
+
+    vverbose 1,"args ",join(",",%$args);
     # button (or form)
-    my $button = _element(%args);
+    my $button = _element(%$args);
     if (!$button) {
-        trace(0, 'submit' => {%args}, because => "No submit-button found");
+        trace(0, 'submit' => $args, because => "No submit-button found");
         }
    
     if (!(
             $button->tag =~ /^form|button$/ 
             || ($button->tag eq 'input' && $button->attr('type') eq 'submit'))) {
-        trace(0, 'submit' => {%args}, because => "Not form/button nor submit (tag = ".$button->tag.", type = ".$button->attr('type').")");
+        trace(0, 'submit' => $args, because => "Not form/button nor submit (tag = ".$button->tag.", type = ".$button->attr('type').")");
         }
     verbose "Submit via ".$button->starttag;
 
@@ -95,9 +120,9 @@ sub submit {
 
     my @params;
     my $hasFile;
-    if ($explicitParams) {
+    if (0) { # was ($explicitParams)
         vverbose 2,"Form params from explicit...";
-        @params = @$explicitParams;
+        # @params = @$explicitParams;
         }
     else {
         vverbose 2,"form fields ",join(" ",map {$_->tag} @{$formInfo->attr('_fields')});
@@ -105,6 +130,7 @@ sub submit {
             next if $_->tag eq 'input' && $_->attr('type') eq 'button';
             next if $_->tag eq 'input' && $_->attr('type') eq 'submit';
             next if $_->tag eq 'button';
+            next if $_->tag eq 'input' && $_->attr('name') eq '';
 
             my $fv = $_->form_field_value; 
             if (scalar(@$fv)) { 
@@ -115,7 +141,7 @@ sub submit {
             }
         # and, of course, our button
         if ($button->tag eq 'input' && $button->attr('type') eq 'submit' && defined $button->attr('value')) {
-            push @params, ($button->attr('name'), $button->attr('value'));
+            push @params, ($button->attr('name'), $button->attr('value')) if $button->attr('name');
             }
         }
     if ($moreParams) {
@@ -535,9 +561,11 @@ sub formInfo {
     return undef if !$form;
     vverbose 1,"found form ".$form->starttag;
 
-    return $PageCache{'form'}->{"".$form} if exists $PageCache{'form'}->{"".$form};
+    return $PageCache{'form'}->{"".$form} if exists($PageCache{'form'}->{"".$form});
 
-    my @fields = $form->look_down( _tag =>  qr/^input|textarea|submit|button|select$/);
+    my @tagsOfInterest = qw(input|textarea|submit|button|select);
+    my $tagsOfInterest = join "|", @tagsOfInterest;
+    my @fields = $form->look_down( _tag =>  qr/^$tagsOfInterest$/);
 
     # some psuedo attributes
     foreach (@fields) {
@@ -563,4 +591,25 @@ sub formInfo {
     return $form;
     }
 
+sub dump_forms {
+    my @info;
+    my @f = Test::Website::Element::element(maybe => { tag => 'form'});
+    if (!@f) {
+        print "no form"
+        }
+    else {
+        foreach my $f (@f) {
+            push @info, Test::Website::Form::formInfo($f, 'includehidden')
+            }
+
+        # vverbose 0,Dumper(@info);
+        foreach my $f (@info) {
+            print $f->starttag,"\n";
+            foreach my $field (@{$f->attr('_fields')}) {
+                print "\t",$field->starttag,"\n";
+                }
+            }
+        # dump_forms
+        }
+    }
 1;

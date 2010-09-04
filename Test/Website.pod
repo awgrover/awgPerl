@@ -26,14 +26,15 @@ The commands are like the interaction you would have with a web-page: "get" an u
 Most of the commands _are_ tests. E.g. "element" will fail if there is no such element. So, we play well
 with all the L<Test::More> and related modules (e.g. L<Test::Behaviour::Spec>).
 
-Other CPAN modules (L</"See Also">) have various approaches to testing/interaction with web-sites.
+Note that this package recognizes HTML and XML pages. Obviously, form type interactions with XML pages may not make sense.
 
+Other CPAN modules (L</"See Also">) have various approaches to testing/interaction with web-sites.
 
 =cut
 
 =head1 State variables
 
-=head2 $Test::Response
+=head2 $Test::Website::Response
 
 This is a L<HTTP::Response> object. It holds the last response, whether from a get or post.
 
@@ -43,13 +44,11 @@ Hint: $Response->previous is defined if there was a redirect.
 
 =back
 
-
 =cut
 
-=head2 $Test::Request
+=head2 $Test::Website::Request
 
 This is a L<HTTP::Request> object. It holds the last request, whether from a get or post.
-
 
 =cut
 
@@ -58,7 +57,6 @@ This is a L<HTTP::Request> object. It holds the last request, whether from a get
 The LWP::UserAgent, with a slight tweak: "On redirect, do not re-send post-data."
 
 A singleton.
-
 
 =cut
 
@@ -71,14 +69,12 @@ into multiple modules, but all the commands are aggregated into a top-level impo
 
 You'll need L<Crypt::SSLeay> to do https.
 
-
 =cut
 
 =head2 baseurl 'some-absolute-url'
 
 The baseurl is convenient so you can use relative urls. This only affects "get", and you can
 always provide an absolute url in "get".
-
 
 =cut
 
@@ -92,14 +88,12 @@ See L</"Element Predicates"> below.
 
     fail_on "PHP Warning notice", text => qr/Notice: /;
 
-
 =cut
 
 =head2 save_html "directory"
 
 Response content will be saved in the directory, with a file-name mangled from the url. By
 default, nothing is saved.
-
 
 =cut
 
@@ -111,7 +105,6 @@ To remove the basic auth user/pass:
 
     basic_auth;
 
-
 =cut
 
 =head1 Requests
@@ -122,7 +115,6 @@ as tests.
 =head2 forget_cookies
 
 Forgets all cookies. The only other session-state might be encoded in urls in the html.
-
 
 =cut
 
@@ -147,244 +139,62 @@ Obviously, trying to follow or post, or any other HTTP protocol things won't wor
 
 I use this to test the module, stubbing (via L<Sub::Override>) the HTTP parts.
 
-=head2 OtherRequestsGoesHere
-
-
 =cut
 
-=head1 Tests/Extraction
+=head2 get and NOFETCH
 
-=head1 OtherTestsGoesHere
+You can cause Test::Website to use cached web-pages by setting the environment variable NOFETCH
+to the name of a file containing a map.
 
-=head1 Fixme
+Example:
 
-Move the pagecache to the response object.
+    env NOFETCH=mapfile perl something-using-test-website
 
-Remove the use of pagecache for form-info.
-
-headers?
-
-=head1 Limitations
-
-Does not run javascript. So, you can't test it. Suggestions/implementation/proposals on implementing this are welcome.
-
-Does not load any images, css, or other media.
-
-Doesn't know about CSS syntax. You could do textual checking.
-
-=head1 See Also
-
-=over
-
-=item * L<HTML::TreeBuilder>/L<HTML::TreeBuilder::XPath>. How we parse and search the web-page.
-
-=item L<Test::Builder> and its ecosystem. Framework, and commands for test suites.
-
-=item * L<WWW::Mechanize>. Another web interaction tool: OO, lower-level, better scraping.
-
-=item * L<Test::HTTP>. Another web testing tool: OO, not tree parsing, simple, Test::Builder based.
-
-=item * L<Test::HTTP::Syntax>. Another web testing tool, built on Test::HTTP. Specify the test as a http-stream exemplar (not programmatic).
-
-=item * L<http://seleniumhq.org/>. Test and excersize web-sites _in_ your browser.
-
-=item * L<http://www.webinject.org/>. XML-spec for testing.
-
-=item * L<Test::XML>. Diff for XML.
-
-=item * The Ruby ecosystem.
-
-=item * And more L<http://www.softwareqatest.com/qatweb1.html#FUNC>, L<http://perl-qa.hexten.net/wiki/index.php/TestingTools>, 
-
-=item * L<curl> or L<wget>. Command line web-site interaction, spidering.
-
-=back
-
-=head1 TODO
-
-clean up trace for logging of a trace.
-
-add no-TAP to inhibit test messages
-
-add no-die
-
-how to get working with test::behavior
-
-=head1 Creating the POD
-
-To assemble the POD for Test::Website,
-
-    cd ..../Test
-    make -f Website/Makefile pod
-
-
-=cut
-
-=head2 <element-predicate>...
-
-These are the arguments to most of the tests (e.g. L</"element">), specifies the element in the html document.
-
-You can have multiple predicates (see below).  The predicates are usually and'd together, but see "attr=>value" below.
-
-There are some short-hands (e.g. L</form>), and see each command (e.g. L<element|element__elementpredicate____>) for special short-hand predicates.
-
-NB: Some predicates take a list of predicates, e.g.
-    in => { .... }
-You may not repeat key-names in such a list, e.g. wrong: in => { id=>'x', id=>'y' }
-
-=head3 attr => "value", ...
-
-Basic "atribute has value" predicate. May have several
-with the same attribute name. If you repeat a "attr", they will be or'd.
-
-The attr and value can be:
-
-        literals
-        qr//
-        sub(HTML::Element) {return t/f} # not implemented yet
-
-=head4 psuedo attr: tag
-
-The tag-name, e.g. "html"
-
-=head4 psuedo attr: n
-
-The position, given the rest of the predicates.  Toplevel predicate only. Short-hand for something like:
-
-    @res = element .....
-    $n < scalar(@res) ? $res[$n] : undef;
-
-=head3 xpath("expr"), OR xpath=>"expr"
-
-Restrict to the nodes that satisfy the expr. Predicates then apply to that list.
-
-Not compatible with "in". Only usable at the "top-level" of a predicate list, e.g.,
-not within "not", etc.
-
-=head3 not => {element-predicate...}
-
-Means "and not <element-predicates>".
-
-Read something like "for the element: and not 1, and not 2, and not 3."
-
-NB:
-
-    element not => { stuff }    # wrong
-
-will never fail. You probably want:
-
-    not_element stuff...
-
-=head3 first-of => {element-predicates}
-
-Acts like:
-
-    other-predicates and firstof1
-    or other-predicates and firstof2
+The "mapfile" is perl-code that has a last array-ref like this
+    [
+    ['arg to a get()' => 'filename of cached web-page'],
+    [/regex matchine get()'s arg/ => 'filename of cached web-page'],
     ...
+    ]
 
-E.g. The first alternative.
+The cached web-page must have minimal http headers:
 
-If you want this behavior: 
+    HTTP/1.x 200 OK
 
-    other-predicates and (a or b or c), 
+    <html>....</html>
 
-do a qr// or sub{}
+Add the mime-type to get xml parsing:
 
-    ..., qr/^a|b|c$/ => somevalue
+    HTTP/1.x 200 OK
+    Content-Type: application/atom+xml; charset=UTF-8
 
-=head3 in => {element-predicate}
-
-    "in an element with <element-predicates>."
-
-    Not compatible with using xpath.
-
-=head3 Short-hand form => "id or action or name or n" 
-
-For 
-
-    in => {tag => "form", first-of => {id=>"x", action=>"x", name=>"x", n => "x"}}
-
+    <someoutertag>...</someoutertag>
 
 =cut
 
-=head2 element <element-predicate>...
-
-    If the element exists in the document
-        return the first one, and log success
-        the returned thing is a HTML::Element
-    else 
-        log failure 
-        die
-
-In an array contex, You will get all the matching elements (of type L<HTML::Element>).
-
-See L<maybe|/maybe_____elementpredicate____>, below, for inhibiting the "die."
-
-=head3 Short-hand: element "tagname" 
-
-For 
-
-    element tag=>"tagname".
-
-=head3 Predicate maybe => {element-predicate...}
-
-As if the predicates, but means "don't fail, return null". Changes "element" from 
-an assertion to "find element or null." Generally, put all the predicates are in the "maybe."
-
-=head3 Idiom: find an element
-
-element maybe=>{predicates...}
-
-Inhibits the "die" if the element is not found.
-
-Returns the first match (or undef) in scalar context, all matches in array context.
-
-=head3 Short-hand not_element ... 
-
-For "no such element", something like (cf. L<not|/not_____elementpredicate____>)
-
-    not element maybe => {...} || fail...
-
-=head3 Short-hand maybe-element ... 
-
-For 
-
-    element maybe => {...}
-
-=head3 Short-hand all-element ... for element all => {...}
-
-=head3 Short-hand field "name" ... 
-
-For 
-
-    element tag => qr/select|checkbox|.../, ..., first-of => {id=>"x", action=>"x", name=>"x"}
-
-
 =cut
 
-=head2 follow element <element-predicates>
+package Test::Website::Form;
+use base qw(Exporter);
+@EXPORT    = qw(
+    submit
+    set
+    unset
+    );
 
-Really, the same as
+use import qw(
+    &Test::Website::_get
+    %Test::Website::PageCache 
+    &Test::Website::Element::_element 
+    );
 
-    my $e = element ....;
-    follow $e;
+use warnings; use strict; no warnings 'uninitialized';
 
-=head3 Short-hand follow <element-predicates> 
-
-For
-
-    follow element <element-predicates>
-
-=head3 Short-hand follow 'hrefvalue'; or follow qr/hrefvalue/, ... 
-
-A single argument is assumed to be for the href attribute (unless the arg is the result from an "element", see L<above|follow_element__elementpredicates_>).
-
-    follow tag=>'a', href=>hrefvalue, ...
-
-
-
-=cut
+use HTML::TreeBuilder::XPath;
+use Test::Website::Log;
+use Data::Dumper;
+use Carp;
+use Verbose; $kVerbose = $ENV{'VERBOSE'} || 0;
 
 =head2 submit <element-predicate>
 
@@ -405,14 +215,111 @@ For:
 
 For: 
 
-    "use button named... OR form id/action/name|n ..."
+    "use button named/value... OR form id/action/name|n ..."
 
 =head2 submit href => "...", fields => { k=>v,...}
 
 Submits a synthesized POST.
 
-
 =cut
+
+sub submit {
+    # submit
+    # submit pred...
+    # submit $buttonname
+    # submit $buttonname, pred...
+    # submit href => $url, fields => ... 
+    my ($buttonName, %args, $explicitParams);
+    vverbose 1,"\@_ ",join(",", @_);
+    if ( (scalar(@_) % 2) == 0) {
+        tie %args, 'Test::Website::Element::PredicateList' => @_;
+        if (@_ == 0) {
+            tie %args, 'Test::Website::Element::PredicateList' => ( tag => 'input', type => 'submit');
+            }
+        elsif (defined $args{'href'}) {
+            die "Not Implemented! submit href=>...";
+            }
+        }
+    else {
+        $buttonName = shift @_;
+        tie %args, 'Test::Website::Element::PredicateList' => @_;
+        $args{qr/^(id|name|action|value)$/} = $buttonName;
+        }
+
+    my $moreParams = delete($args{'moreParams'});
+
+    vverbose 1,"args ",join(",",%args);
+    # button (or form)
+    my $button = _element(%args);
+    if (!$button) {
+        trace(0, 'submit' => {%args}, because => "No submit-button found");
+        }
+   
+    if (!(
+            $button->tag =~ /^form|button$/ 
+            || ($button->tag eq 'input' && $button->attr('type') eq 'submit'))) {
+        trace(0, 'submit' => {%args}, because => "Not form/button nor submit (tag = ".$button->tag.", type = ".$button->attr('type').")");
+        }
+    verbose "Submit via ".$button->starttag;
+
+    my $formInfo = formInfo($button);
+    if (!$formInfo) {
+        my $i=1;
+        my $ancestry = join("\n", map {(" " x $i++).$_->starttag} $button->lineage);
+        trace(0, 'submit' => {@_}, because => "The submit-button ".$button->starttag." was not in a form: \n".$ancestry);
+        }
+
+    my @params;
+    my $hasFile;
+    if ($explicitParams) {
+        vverbose 2,"Form params from explicit...";
+        @params = @$explicitParams;
+        }
+    else {
+        vverbose 2,"form fields ",join(" ",map {$_->tag} @{$formInfo->attr('_fields')});
+        foreach (@{ $formInfo->attr('_fields') }) { 
+            next if $_->tag eq 'input' && $_->attr('type') eq 'button';
+            next if $_->tag eq 'input' && $_->attr('type') eq 'submit';
+            next if $_->tag eq 'button';
+
+            my $fv = $_->form_field_value; 
+            if (scalar(@$fv)) { 
+                vverbose 2,"collect ",join(",",@$fv);
+                push @params, @$fv;
+                }
+            $hasFile |= $_->tag eq 'input' && $_->attr('type') eq 'file';
+            }
+        # and, of course, our button
+        if ($button->tag eq 'input' && $button->attr('type') eq 'submit' && defined $button->attr('value')) {
+            push @params, ($button->attr('name'), $button->attr('value'));
+            }
+        }
+    if ($moreParams) {
+        if (ref($moreParams) eq 'ARRAY') {
+            push @params, @$moreParams
+            }
+        else {
+            push @params, %$moreParams
+            }
+        }
+        
+    vverbose 1,"submit params ".join(", ",@params);
+    croak "file upload not implemented for ".$formInfo->starttag if $hasFile;
+
+    # FIXME: implement these?
+    my $debug = undef;
+
+    my $url = $formInfo->attr('action');
+    $url = $Test::Website::Response->request->uri->clone if ((!defined($url) || $url eq '') && $formInfo->attr('method') =~ /^get|post$/i); 
+    croak "Url for the submit was empty" if !$url;
+    return
+        _get(command=>'submit',
+            url=>$url,
+            method=>uc($formInfo->attr('method') || 'GET'), 
+            params=> \@params,
+            fileUpload=>$hasFile,
+            debug=>$debug);
+    }
 
 =head2 set value => "somevalue", <element-predicates>
 
@@ -507,19 +414,154 @@ Unset's the field
 If you want to "set" a radio/checkbox/select to a non-existent "value", or add non-existent fields,
 you'll have to use: submit force=>[]. See Submit.
 
-
 =cut
+
+sub unset {
+    unshift @_, 'name' if @_ %2;
+    goto &set(@_, value => undef);
+    }
+
+sub set {
+    # 'name'
+    # 'name' => 'value' # ambigous with a single k=>v pred
+    # k=>v, ... # preds, 
+    # NB: value => 'x' is not a pred for text|file|textarea|password
+    # NB: a value => undef, is not a pred, it means unset
+    # xpath(), ...
+    # force => [ preds ]
+
+    my %args;
+
+    my ($tryKVFallback, $force);
+
+    # xpath & 'name' short-hands
+    if (@_ == 1) {
+        if (ref $_[0] eq 'XPATH') {
+            %args = ( xpath => $_[0] );
+            }
+        else {
+            %args = (name => shift, value => qr/./);
+            }
+        }
+    
+    # fixup 'force', then deal with n=>v idiom
+    else {
+        tie %args, 'Test::Website::Element::PredicateList' => @_;
+        # force becomes value
+        if (exists $args{'force'}) {
+            $force = 1;
+            $args{'value'} = delete $args{'force'};
+            vverbose 4,"found force value ".$args{'value'};
+            }
+=off
+        foreach my $i (0..($#_ / 2)) {
+            if ($_[$i*2 - 1] eq 'force') { 
+                $force = 1;
+                my $value = $_[$i*2 ];
+                splice(@_, $i*2 - 1,2);
+                splice(@_, 1, 0, $value);
+                last;
+                }
+            }
+=cut
+        
+        my $explicitValue;
+        if (exists $args{'value'}) {
+            $explicitValue = 1;
+            }
+
+        # either 'name'=>'value',... or k=>v,... (if we had $force, we had explicit value)
+        if (!$explicitValue) {
+            $tryKVFallback = 1; # we might have guessed 'name'=>'value' wrong
+            my ($n,$v) = (shift, shift);
+            unshift @_, ( name => $n, value => $v );
+            tie %args, 'Test::Website::Element::PredicateList' => @_;
+            }
+        }
+        
+    verbose 0,"set args: ".join(", ",%args);
+
+    my @forms = _element(_tag => 'form');
+    foreach (@forms) {
+        formInfo($_); # add _fields, etc.
+        }
+    if (!@forms) {
+        trace(0, set => {%args}, because => "no form found");
+        }
+
+    # remove the 'value' pred, it might mean "unset" or "here's the new value"
+    my ($value, $hasValue);
+    if (exists $args{'value'}) {
+        $hasValue = 1;
+        $value = delete $args{'value'};
+        vverbose 8,"removed value $value ",join(", ",%args);
+        }
+
+    vverbose 1,"find field ".join(", ",%args);
+
+    # because 'value' may be a predicate for check/radio/select
+    # we need to get a long candidate list, then possibly filter
+    my $field = _element(_formfieldtype => qr/^text|password|textarea|file|select|checkbox|radio|hidden$/, %args);
+    if (!$field && $tryKVFallback) {
+        # revert from name=>'n', value => 'a' to:
+        # n=>a as if 'n' was an attribute name, and 'a' was it's value
+        my $a = delete $args{'name'};
+        my $v = delete $args{'value'};
+        $args{$a} = $v;
+        vverbose 0,"revert to $a => $v";
+
+        $field = _element(_formfieldtype => qr/^text|password|textarea|file|select|checkbox|radio|hidden$/, @_);
+        }
+
+    if (! $field) {
+        my $ancestry = " in:\n\t"
+            . join("\n\t", map { 
+                $_->starttag."\n\t\t" 
+                . join("\n\t\t", map { $_->starttag } @{ $_->attr('_fields') }) 
+                } @forms)
+            ;
+        trace(0, set => {%args, ($hasValue ? (value=>$value) : ())}, because => "Field not found".($hasValue ? " ('value' not used as predicate)" : "") . $ancestry);
+        }
+
+    if (ref($value) eq 'Regexp' 
+            && !($field->tag eq 'select'
+                || $field->tag eq 'input' && $field->attr('type') =~ /^checkbox|radio$/)) {
+        trace(0, set => {%args}, because => "Can't set value to a regex ($value) for ".$field->starttag);
+        }
+
+    croak "Can't set ".$field->attr('type')." without 'force': set force=>[".join(", ",%args)."]"
+        if $field->tag eq 'input' && $field->attr('type') eq 'hidden' && !$force;
+
+    vverbose 2,"set ".$field->starttag," = $value";
+    my $newValues = $field->form_field_value($value);
+
+    my $because;
+    my $ok =1;
+    if (defined $value) {
+        $ok = @$newValues ? 1 : 0;
+        vverbose 2,"set for spec [".join(', ',%args)."], v='$value', new=",join(",",@$newValues);
+        $because = "value not set";
+        if ($field->attr('_formfieldtype') eq 'select') {
+            $because .= ", no such option '$value' in: "
+                .join(", ",map {$_->attr('value')."(".($_->content_list)[0].")"} @{$field->attr('_options') })
+                ;
+            }
+        }
+    trace($ok, set => {%args}, because => $because);
+
+    return $field;
+    }
 
 =head1 Method HTML::Element->form_field_value
 
 An extension to HTML::Element, gives the "value" of a formfield:
 
     my $e = element 'select', name => "state";
-    my $itsvalue = $e->value;
+    my $itsvalue = $e->form_field_value;
 
 Will set the fields "value" if $value is given.
 
-    $e->value("MD");
+    $e->form_field_value("MD");
 
 Works roughly like so:
 
@@ -529,6 +571,851 @@ Works roughly like so:
     textarea : ->content_list()[0]
     file : ->attr('value')
 
+=cut
+
+sub HTML::Element::form_field_value {
+    # @value for <input>, text() for <textarea>, checked for radio/check/select.
+    # Assumes the HTML::Elements have been marked up by formInfo()
+    # Only 'select' elements should return more than 1 value
+    my ($field, $newValue) = @_;
+    my $shouldSet = scalar(@_) >= 2;
+    
+    vverbose 4,"field ".$field->starttag.($shouldSet ? (defined($newValue) ? " '$newValue'" : ' undef'): '');
+    return [] if !defined $field->attr('name');
+
+    Test::Website::Form::formInfo($field);
+
+    my @values;
+    if ($field->tag eq 'input') {
+        if ($field->attr('type') =~ /^text|file|hidden|password$/ || ! defined $field->attr('type')) {
+            if ($shouldSet) {
+                $field->attr('value', $newValue);
+                vverbose 3,"Set ".(defined($newValue) ? "'$newValue'" : 'undef');
+                }
+            if (defined $field->attr('value')) {
+                vverbose 4,"input/\@text ".$field->attr('value');
+                push @values, ($field->attr('name') => $field->attr('value'));
+                }
+            }
+        elsif ( $field->attr('type') =~ /^checkbox|radio$/) {
+            # present and "" is html, present and "checked" is xhtml
+            if ($shouldSet) {
+                vverbose 2,"set radio/check ".$field->attr('name')." if $newValue";
+                # only one radio
+                if ($field->attr('type') eq 'radio') {
+                    my $ct=0;
+                    foreach (@{ $field->attr('_form')->attr('_fields') }) {
+                        if ($_->tag eq 'input' 
+                                && $_->attr('type') eq 'radio' 
+                                && $_->attr('name') eq $field->attr('name')
+                                ) {
+                            $_->attr('checked',undef);
+                            }
+                        $ct++;
+                        }
+                    vverbose 4,"reset radio ".$field->attr('name').", ct=$ct";
+                    }
+
+                my @fields = $field;
+
+                # possibly set all checkboxes on (for matched value)
+                if ($field->attr('type') eq 'checkbox') {
+                    @fields =  grep {
+                        $_->tag eq 'input' 
+                            && $_->attr('type') eq 'checkbox' 
+                            && $_->attr('name') eq $field->attr('name')
+                        } @{ $field->attr('_form')->attr('_fields') };
+                    vverbose 4,"set checkbox ct ".@fields;
+                    }
+
+                # only checkboxes will have n>1
+                foreach my $aField (@fields) {
+                    my $v = ($aField->attr('name') => 
+                        (defined($aField->attr('value')) 
+                            ? $aField->attr('value') 
+                            : 1));
+                    if (ref($newValue) eq 'Regexp' ? $v =~ $newValue : $v eq $newValue) {
+                        $aField->attr('checked', 'checked');
+                        vverbose 4,"SET!";
+                        }
+                    }
+                }
+            if (defined($field->attr('checked'))
+                    && $field->attr('checked') =~ /^$|^checked$/i) {
+                # use value if there, else 1
+                vverbose 2,"input/\@check|radio is set ".$field->starttag;
+                push @values, ($field->attr('name') 
+                    => (defined($field->attr('value')) ? $field->attr('value') : 1));
+                }
+            }
+        }
+    elsif ( $field->tag eq 'select' ) {
+        vverbose 4,"Select ".$field->starttag;
+        my $setCt = 0; # for "only first if not multi-select"
+        foreach my $option (@{ $field->attr('_options') }) {
+            # present and "" is html, present and "checked" is xhtml
+            if ($shouldSet) {
+                $option->attr('selected',undef);
+                vverbose 4,"\treseted ".$option->starttag;
+                my $v = defined($option->attr('value')) 
+                        ? $option->attr('value') 
+                        : 1;
+                my $t = defined($option->content_list)
+                    ? ($option->content_list)[0]
+                    : undef;
+                if (ref($newValue) eq 'Regexp' 
+                        ? ($v =~ $newValue || $t =~ $newValue) 
+                        : ($v eq $newValue || $t eq $newValue)) {
+                    vverbose 4,"\tselected?, setct $setCt, multi ".$field->attr('multiple');
+                    if ($setCt == 0 || $field->attr('multiple')) {
+                        vverbose 4,"\tselected!";
+                        $option->attr('selected', 'selected');
+                        $setCt++;
+                        }
+                    }
+                }
+            vverbose 4,"collect settings...".$option->starttag;
+            if (defined($option->attr('selected'))
+                    && $option->attr('selected') =~ /^$|^selected$/i) {
+                vverbose 4,"\tselected/option";
+                # use value if there, else 1
+                push @values, ($field->attr('name') 
+                    => (defined($option->attr('value')) 
+                        ? $option->attr('value') 
+                        : (defined($option->content_list) 
+                            ? ($option->content_list)[0]
+                            : 1)));
+                }
+            }
+        }
+    elsif ( $field->tag eq 'textarea' ) {
+        if ($shouldSet) {
+            @{$field->content_array_ref} = defined $newValue ? $newValue : ();
+            }
+        if ($field->content_list) {
+            vverbose 4,"textarea/text()";
+            push @values, ($field->attr('name') => ($field->content_list)[0]);
+            }
+        }
+    return \@values;
+    }
+
+sub formInfo {
+    # Find the enclosing form, and return it 
+    # with _fields = list of field HTML::Elements,
+    # where a 'select' element has _options = list of option HTML::Elements
+    my ($elementNode) = @_;
+
+    my $form = $elementNode->attr('_form') || $elementNode->look_up(_tag => 'form');
+    vverbose 0,"no form for ".$elementNode->starttag." whose parent is ".$elementNode->parent->starttag if !$form;
+    return undef if !$form;
+    vverbose 1,"found form ".$form->starttag;
+
+    return $PageCache{'form'}->{"".$form} if exists $PageCache{'form'}->{"".$form};
+
+    my @fields = $form->look_down( _tag =>  qr/^input|textarea|submit|button|select$/);
+
+    # some psuedo attributes
+    foreach (@fields) {
+        $_->attr('_form',$form); # back ref
+
+        # _formFieldType
+        if ($_->tag =~ /^textarea|submit|button|select$/) {
+            $_->attr('_formfieldtype', $_->tag);
+            }
+        else {
+            $_->attr('_formfieldtype', $_->attr('type') || 'text');
+            }
+
+        # selects get their options
+        next unless $_->tag =~ /^select$/i;
+        $_->attr('_options', [ $_->look_down(_tag => 'option') ]);
+        }
+
+    $form->attr('_fields', \@fields);
+
+    $PageCache{'form'}->{"".$form} = $form;
+
+    return $form;
+    }
+
+1;
+
+
+=cut
+
+=head1 Tests/Extraction
+
+=cut
+
+package Test::Website::Element;
+use warnings; use strict; no warnings 'uninitialized';
+
+use base qw(Exporter);
+our @EXPORT    = qw(
+    element
+    not_element
+    xpath
+    follow
+    );
+
+use import qw(
+    %Test::Website::PageCache
+    $Test::Website::Response
+    &Test::Website::_get
+    $Test::Website::kVerbose
+    );
+use Verbose; $kVerbose = $ENV{'VERBOSE'} || 0;
+
+
+use HTML::TreeBuilder::XPath;
+use XML::TreeBuilder; # also monkey patched like HTML::TreeBuilder to include the ::XPath methods
+use Test::Website::Log;
+use Data::Dumper;
+use Carp;
+use Test::Builder::Module;
+
+
+=head2 <element-predicate>...
+
+These are the arguments to most of the tests (e.g. L</"element">), specifies the element in the html document.
+
+You can have multiple predicates (see below).  The predicates are usually and'd together, but see "attr=>value" below.
+
+There are some short-hands (e.g. L</form>), and see each command (e.g. L<element|element__elementpredicate____>) for special short-hand predicates.
+
+NB: Some predicates take a list of predicates, e.g.
+    in => { .... }
+You may not repeat key-names in such a list, e.g. wrong: in => { id=>'x', id=>'y' }
+
+=head3 attr => "value", ...
+
+Basic "atribute has value" predicate. May have several
+with the same attribute name. If you repeat a "attr", they will be or'd.
+
+The attr and value can be:
+
+        literals
+        qr//
+        sub(HTML::Element) {return t/f} # not implemented yet
+
+Notes on regex's:
+
+For your convenience, a predicate of { text => qr/..../ } will capture the match as an arrayref HTML::Element->attr('_re').
+The first element of the arrayref is the entire regex match, and then your capturing parenthesis. E.g.
+
+    $res = element text => qr/login (for admin)/;
+    ($wholeMatchedRegex, $justForAdmin) = @{ $res->attr('_re') };
+
+The HTML::Element->look_down() method is used to find elements that match the predicate. It appears to
+to have this peculiar behavior:
+
+    $ matches the end of the text (not end-of-line)
+    . does not match end-of-lines
+
+So, qr/.+$/ will typically fail. But, qr/blah blah.+/ will match to the end of line. You can specify
+regex flags, 'm' and 's', to get the behavior you desire. E.g qr/blah+.$/m will match till end of line.
+
+Also, given that you supply the regex via qr//, you can't specify the 'g' flag.
+
+=head4 psuedo attr: tag
+
+The tag-name, e.g. "html"
+
+=head4 psuedo attr: n
+
+The position, given the rest of the predicates.  Toplevel predicate only. Short-hand for something like:
+
+    @res = element .....
+    $n < scalar(@res) ? $res[$n] : undef;
+
+=head3 xpath("expr"), OR xpath=>"expr"
+
+Restrict to the nodes that satisfy the expr. Predicates then apply to that list.
+
+Not compatible with "in". Only usable at the "top-level" of a predicate list, e.g.,
+not within "not", etc.
+
+=head3 not => {element-predicate...}
+
+Means "and not <element-predicates>".
+
+Read something like "for the element: and not 1, and not 2, and not 3."
+
+NB:
+
+    element not => { stuff }    # wrong
+
+will never fail. You probably want:
+
+    not_element stuff...
+
+=head3 first-of => {element-predicates}
+
+Acts like:
+
+    other-predicates and firstof1
+    or other-predicates and firstof2
+    ...
+
+E.g. The first alternative.
+
+If you want this behavior: 
+
+    other-predicates and (a or b or c), 
+
+do a qr// or sub{}
+
+    ..., qr/^a|b|c$/ => somevalue
+
+=head3 in => {element-predicate}
+
+    "in an element with <element-predicates>."
+
+    Not compatible with using xpath.
+
+=head3 Short-hand form => "id or action or name or n" 
+
+For 
+
+    in => {tag => "form", first-of => {id=>"x", action=>"x", name=>"x", n => "x"}}
+
+=cut
+
+sub buildPredicate {
+    tie my %args, 'Test::Website::Element::PredicateList' => @_;
+
+    vverbose 2,"build: ",join("=>",map {"$_(".ref($_).")=>".$args{$_}} keys %args);
+    my @and;
+
+    # not
+    if (my $not = delete $args{'not'}) {
+        
+        vverbose 4,"build not: ",join("=>",(ref($not) eq 'HASH' ? %$not : @$not));
+        my $notP = buildPredicate(ref($not) eq 'HASH' ? %$not : @$not);
+        push @and, sub { 
+            vverbose 4, "not(";
+            my $res = ! &$notP(@_);
+            vverbose 4, " )=".($res ? 1 : 0)." ";
+            return $res;
+            };
+        }
+
+    # attr's
+    if (%args) {
+        push @and, sub {
+            my ($node) = @_;
+            my $found = 1;
+            vverbose 4, ("Test for ".$node->starttag."\n");
+
+            keys %args;
+
+            # "and" each attribute test value
+            while (my ($testAttr,$testValues) = each %args) {
+                $testValues = (ref($testValues) eq 'ARRAY') ? $testValues : [ $testValues ];
+
+                vverbose 4, ("values ".join(",",@{(ref $testValues) ? $testValues : [$testValues]})." for ".ref($testAttr)." $testAttr");
+                confess ".... found hash for attribute '$testAttr'" if ref $testValues eq 'HASH';
+
+                # since the test-attribue-name could be a regex,
+                # we have to filter for candidate attributes
+                vverbose 4,"setup for $testAttr = ".join(",",@$testValues)." in attributes ".join(", ",$node->all_attr_names());
+                my @candidateValues = 
+                    map {
+                        vverbose 4, "    candidate value for $_ ==? $testAttr";
+                        if ($_ eq 'text') {
+                            $node->content_list;
+                            }
+                        else {
+                            $node->attr( $_)
+                            }
+                        }
+                    grep {
+                        my ($r) = (ref($testAttr) eq 'Regexp')
+                            ? $_ =~ $testAttr
+                            : $_ eq ($testAttr eq 'tag' ? '_tag' : $testAttr)
+                            ;
+                        vverbose 6,"## filter: is extant attr '$_' match for ".ref($testAttr)." $testAttr? -> '$r'";
+                        $r;
+                        } ($node->all_attr_names(),'text');
+                
+                vverbose 4,"  candidate attr ct ".@candidateValues," : ",join(", ",@candidateValues);
+
+                # for this attr, one of the candidate-values has to match one of the test-values
+
+                my $one_of = 0;
+
+                ATTR_MULTI:
+                foreach my $attrV (@candidateValues) {
+                    foreach my $testValue (@$testValues) {
+                        vverbose 4,"   test $testValue vs $attrV";
+                        if (ref($testValue) eq 'Regexp'
+                                ? $attrV =~ $testValue
+                                : $attrV eq $testValue) {
+                            $one_of = 1;
+                            last ATTR_MULTI; # short-circuit "or"
+                            }
+                        }
+                    }
+                $found &= $one_of;
+
+                # if none of the values matches, fail
+                vverbose 4,"  ".$node->starttag." =$found";
+                last if !$found; # short-circuit "and"
+                next;
+                }
+
+            vverbose 4,"Match by attr? ".$node->starttag." $found";
+            return $found;
+            };
+        }
+
+    my $pred;
+    if (@and > 1) {
+        $pred = sub { 
+            my $found = 1; 
+            vverbose 4, ("and(");
+            foreach (@and) { 
+                $found &= &$_(@_); 
+                vverbose 4, (", ");
+                }
+            vverbose 4, (")=".($found?1:0)." ");
+            return $found
+            };
+        }
+    else {
+        $pred = $and[0];
+        }
+
+    return $pred;
+    }
+
+=head2 element <element-predicate>...
+
+    If the element exists in the document
+        return the first one, and log success
+        the returned thing is a HTML::Element
+    else 
+        log failure 
+        die
+
+In an array contex, You will get all the matching elements (of type L<HTML::Element>).
+
+See L<maybe|/maybe_____elementpredicate____>, below, for inhibiting the "die."
+
+=head3 Short-hand: element "tagname" 
+
+For 
+
+    element tag=>"tagname".
+
+=head3 Predicate maybe => {element-predicate...}
+
+As if the predicates, but means "don't fail, return null". Changes "element" from 
+an assertion to "find element or null." Generally, put all the predicates are in the "maybe."
+
+=head3 Idiom: find an element
+
+element maybe=>{predicates...}
+
+Inhibits the "die" if the element is not found.
+
+Returns the first match (or undef) in scalar context, all matches in array context.
+
+=head3 Short-hand not_element ... 
+
+For "no such element", something like (cf. L<not|/not_____elementpredicate____>)
+
+    not element maybe => {...} || fail...
+
+=head3 Short-hand maybe-element ... 
+
+For 
+
+    element maybe => {...}
+
+=head3 Short-hand all-element ... for element all => {...}
+
+=head3 Short-hand field "name" ... 
+
+For 
+
+    element tag => qr/select|checkbox|.../, ..., first-of => {id=>"x", action=>"x", name=>"x"}
+
+=cut
+
+sub not_element {
+    element(@_, _not => 1);
+    }
+
+sub element {
+    # hidden arg "_not";
+
+    if (scalar(@_) % 2) {
+        if (ref($_[0]) eq 'XPATH') {
+            $_[0] = "".$_[0]; # stringify
+            unshift @_,"xpath";
+            }
+        else {
+            unshift @_,"tag";
+            }
+        }
+    tie my %args, 'Test::Website::Element::PredicateList' => @_;
+    tie my %originalArgs, 'Test::Website::Element::PredicateList' => @_; # we operate on %args
+    # vverbose 0,"ELEMENT orig ".Dumper(\@_);
+    # vverbose 0,"ELEMENT ".Dumper(\%originalArgs);
+
+    # expand short-hands
+
+    my $maybe;
+    if ($maybe = delete $args{'maybe'}) {
+        # promote the preds. 'maybe' is just a flag
+        vverbose 2,"rebuild from maybe";
+        @args{keys %$maybe} = values %$maybe;
+        }
+
+    # "not any" as opposed to "any w/not..."
+    my $_not = delete $args{'_not'} ? 1 : 0; # canonical the value
+
+    my @res = _element(%args);
+
+    # tricky, success is opposite of _not arg
+    my $ok = 
+        @res
+        ? !$_not
+        : $_not 
+        ;
+
+    trace($ok, ($_not ? 'not_' : "").'element' => \%originalArgs, because => "not found", maybe => $maybe);
+
+    return wantarray ? @res : (scalar(@res) ? $res[0] : undef);
+    }
+
+sub _parse {
+    return $PageCache{'parsed'} if $PageCache{'parsed'};
+
+    my $tree;
+
+    my $type = $Test::Website::Response->header('content-type');
+
+    if ($type =~ /(\+xml(;|$))|(^(application|text)\/xml(;|$))/ && $type !~ /\/xhtml+xml(;|$)/) {
+        vverbose 2,"parsed as XML";
+        $tree = XML::TreeBuilder->new();
+        $tree->parse($Test::Website::Response->content);
+        }
+    else {
+        vverbose 2,"parsed as HTML";
+        $tree = HTML::TreeBuilder::XPath->new_from_content($Test::Website::Response->content);
+        }
+    $tree->elementify if !$tree->isa('HTML::Element');;
+    $PageCache{'parsed'} = $tree;
+
+    return $tree;
+    }
+
+sub _element {
+    tie my %args, 'Test::Website::Element::PredicateList' => @_;
+    
+    return undef if !$Test::Website::Response;
+
+    my $ith = delete $args{'n'};
+    $ith -= 1 if defined $ith; # nth vs ith
+
+    # list of trees, for xpath later
+    my @trees = _parse();
+
+    # get xpath results first
+    my $xpath;
+    if ($xpath = delete $args{'xpath'}) {
+        @trees = $trees[0]->findnodes($xpath);
+        vverbose 2,"xpath: ".$xpath. " = ".scalar(@trees);
+        }
+
+    vverbose 1,"Build from args: ",join("=>", map {"<".ref($_).">$_"} %args),"\n\t";
+    my $xpred = buildPredicate(%args);
+    my $pred = $xpred;
+
+    my @elements;
+
+    if (!$pred) {
+        @elements = @trees if $xpath;
+        }
+    else {
+        vverbose 3,("search: ",join("=>", %args),"\n\t");
+        my $i=1;
+        foreach (@trees) {
+            vverbose 3,("tree ".($i++));
+            push @elements, $_->look_down($pred);
+            }
+        }
+
+    vverbose 1,"found ".@elements; # ." ".Dumper($elements[0])."...";
+
+    if (defined $ith) {
+        @elements = $elements[$ith];
+        }
+   
+    # gather the regex matches for the text thing
+    if (defined $args{'text'} && ref($args{'text'}) eq 'Regexp') {
+        my $regex = $args{'text'};
+        # vverbose 0,"TExT regex $regex";
+        foreach my $element (@elements) {
+            foreach ($element->content_list) {
+                if (!ref $_) {
+                    if (my @res = ($_ =~ /($regex)/)) {
+                        # vverbose 0,"HIT in $_ \t::".join("\n\t::",@res)."\n";
+                        $element->attr('_re', \@res);
+                        }
+                    }
+                }
+            }
+        }
+    return  wantarray ? @elements : (scalar(@elements) ? $elements[0] : undef);
+    }
+
+=head2 follow element <element-predicates>
+
+Really, the same as
+
+    my $e = element ....;
+    follow $e;
+
+=head3 Short-hand follow <element-predicates> 
+
+For
+
+    follow element <element-predicates>
+
+=head3 Short-hand follow 'hrefvalue'; or follow qr/hrefvalue/, ... 
+
+A single argument is assumed to be for the href attribute (unless the arg is the result from an "element", see L<above|follow_element__elementpredicates_>).
+
+    follow tag=>'a', href=>hrefvalue, ...
+
+
+=cut
+
+sub follow {
+    my $link;
+    if (scalar(@_) == 1 && ref $_[0] eq 'HTML::Element') {
+        $link =  $_[0];
+        @_ = ( 'obj' => $link->starttag );
+        }
+    elsif (scalar(@_) % 2) {
+        unshift @_, 'href';
+        push @_, ( tag => 'a' );
+        }
+
+    $link = $link || _element(@_);
+
+    if (!$link) {
+        trace(0, follow => [@_], because => "link not found");
+        }
+
+    if ($link->tag ne 'a') {
+        trace(0, follow => [@_], because => "that's not a link: ".$link->starttag);
+        }
+
+    my $url = $link->attr('href');
+
+    my $res = _get(command=>'follow',url=>$url, method=>'GET', base => $Response->base);
+    verbose "got ".$res->status_line;
+    trace($res->is_success, follow => [@_], because => "Status was ".$res->status_line);
+
+    return $res;
+    }
+
+END {
+    }
+
+sub xpath {
+    # just package the string as an XPATH.
+    bless \$_[0], "XPATH";
+    }
+
+package XPATH;
+use overload
+    '""' => sub {${$_[0]}};
+
+package Test::Website::Element::PredicateList;
+# hash implementation
+# allows refs as keys
+# assigning to an existing key, makes the value an array and pushes the new value
+use Verbose;
+
+sub TIEHASH  {
+    my ($class) = shift;
+    my $self = bless {alist => [], iter => 0}, __PACKAGE__;
+
+    foreach my $i (0 .. scalar(@_) / 2 -1 ) {
+        my $k = $_[$i * 2];
+        my $v = $_[$i * 2 + 1];
+        # vverbose 0,"$i: ".ref($k)." $k => $v";
+        STORE($self, $k, $v);
+        }
+    # vverbose 0,"is ".Dumper($self)." from ".join(", ",@_); use Data::Dumper;
+    return $self;
+    }
+
+sub STORE {
+    my ($self, $k, $v) = @_;
+    my $extant = entry($self, $k);
+
+    if (defined($extant)) {
+        if (ref $extant->[1] eq 'ARRAY') {
+            # vverbose 0,"add to $k, $v";
+            push @{ $extant->[1]}, $v; # add v
+            }
+        else {
+            # vverbose 0,"convert, and add to $k, $v";
+            $extant->[1] = [$extant->[1], $v]; # convert v to list of v
+            }
+        }
+    else {
+        # vverbose 0,"set $k => $v";
+        push @{$self->{'alist'}}, [ $k, $v ]; # a-list pair
+        }
+    }
+
+sub entry {
+    my ($self, $k) = @_;
+    my $res;
+    foreach (@{$self->{'alist'}}) {
+        # vverbose 0,"entry for $k? ".Dumper($_);
+        if ($k eq $_->[0]) {
+            return $_;
+            }
+        }
+    # vverbose 0,"no such $k";
+    return undef;
+    }
+
+sub EXISTS {
+    my ($self,$k) = @_;
+    entry($self, $k);
+    }
+
+sub FIRSTKEY {
+    my $self = shift;
+    $self->{'iter'} = 0;
+    # vverbose 0,"first key ". $self->{'alist'}->[0]->[0];
+    return scalar(@{$self->{'alist'}}) 
+        ? $self->{'alist'}->[0]->[0] 
+        : ();
+    }
+
+sub FETCH {
+    my ($self, $k) = @_;
+    if (my $entry = entry($self, $k)) {
+        # vverbose 0,"fetch $k => ".Dumper($entry);
+        return $entry->[1];
+        }
+    return undef;
+    }
+
+sub NEXTKEY {
+    my $self=shift;
+    my $i = ++$self->{'iter'};
+    my $data = $self->{'alist'};
+    # vverbose 0,"next key $i";
+    return $i < scalar(@$data) 
+        ? $data->[$i]->[0]
+        : ()
+        ;
+    }
+
+sub DELETE {
+    my ($self, $k) = @_;
+    return undef if ! scalar(@{$self->{'alist'}});
+
+    my $data = $self->{'alist'};
+    foreach (0 .. scalar(@$data) - 1) {
+        if ($k eq $data->[$_]->[0]) {
+            my $res = $data->[$_]->[1];
+            splice(@$data, $_,1, ());
+            return $res;
+            }
+        }
+    return undef;
+    }
+
+sub SCALAR {
+     scalar(@{shift->{'alist'}});
+     }
+
+sub DESTROY {
+    my $self = shift;
+    $self->{'alist'} = undef;
+    }
+
+sub CLEAR {
+    shift->{'alist'} = [];
+    }
+
+package Test::Website::Element;
+1;
+
+
+=head1 Fixme
+
+Move the pagecache to the response object.
+
+Remove the use of pagecache for form-info.
+
+headers?
+
+=head1 Limitations
+
+Does not run javascript. So, you can't test it. Suggestions/implementation/proposals on implementing this are welcome.
+
+Does not load any images, css, or other media.
+
+Doesn't know about CSS syntax. You could do textual checking.
+
+=head1 See Also
+
+=over
+
+=item * L<HTML::TreeBuilder>/L<HTML::TreeBuilder::XPath>. How we parse and search the web-page.
+
+=item L<Test::Builder> and its ecosystem. Framework, and commands for test suites.
+
+=item * L<WWW::Mechanize>. Another web interaction tool: OO, lower-level, better scraping.
+
+=item * L<Test::HTTP>. Another web testing tool: OO, not tree parsing, simple, Test::Builder based.
+
+=item * L<Test::HTTP::Syntax>. Another web testing tool, built on Test::HTTP. Specify the test as a http-stream exemplar (not programmatic).
+
+=item * L<http://seleniumhq.org/>. Test and excersize web-sites _in_ your browser.
+
+=item * L<http://www.webinject.org/>. XML-spec for testing.
+
+=item * L<Test::XML>. Diff for XML.
+
+=item * The Ruby ecosystem.
+
+=item * And more L<http://www.softwareqatest.com/qatweb1.html#FUNC>, L<http://perl-qa.hexten.net/wiki/index.php/TestingTools>, 
+
+=item * L<curl> or L<wget>. Command line web-site interaction, spidering.
+
+=back
+
+=head1 TODO
+
+clean up trace for logging of a trace.
+
+add no-TAP to inhibit test messages
+
+add no-die
+
+how to get working with test::behavior
+
+=head1 Creating the POD
+
+To assemble the POD for Test::Website,
+
+    cd ..../Test
+    make -f Website/Makefile pod
 
 =cut
 

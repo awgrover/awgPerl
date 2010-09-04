@@ -5,7 +5,6 @@ use strict; use warnings; no warnings 'uninitialized';
 
 use File::Basename;
 use IO::File;
-use Text::Balanced qw(extract_bracketed);
 use Data::Dumper;
 
 sub main {
@@ -33,6 +32,8 @@ sub main {
     print render($template, \%data);
     }
 
+use strict; use warnings; no warnings 'uninitialized';
+use Text::Balanced qw(extract_bracketed);
 sub render {
     my ($template, $data) = @_;
     # replace $x with $data->{'x'}
@@ -40,7 +41,7 @@ sub render {
 
     # repeats, 1st, recurse
     my @rez;
-    # this split could probably be a match...
+    # avoid $' with a split
     while (my @repeats = split(/@(\w+)(?=\[)/, $template,2)) {
         push @rez, $repeats[0];
         last if ! $repeats[1];
@@ -58,7 +59,6 @@ sub render {
         # warn "Finished '\@$field_name'";
         }
 
-    # warn "Finished repeats ".@rez;
     my $rez = join("",@rez);
 
     # scalars
@@ -78,18 +78,16 @@ Can't escape at-sign \@outer[]
 Can escape left-bracket \[
 Literal @
 Must otherwise match left and right []
-Repeating block:
-  @outer[top-of-block
-    Top-level values still visible, filename: $file
-    Block's name (hiding top-level name): $name
-  end-of-block]
 Nested Block
+  Top-level values still visible, filename: $file
   Top name: $name
   @outer[Outer
     Outer name: $name   
     Outer visible value (outerValue): $outerValue
     Starting inner on this line: @inner[Inner
+      Top-level values still visible, filename: $file
       Outer visible value (outerValue): $outerValue
       Inner name: $name
     end-of-inner]
   end-of-outer]
+Terminal text

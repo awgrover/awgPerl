@@ -1,17 +1,41 @@
 #!/usr/bin/env perl
-# --- dbi:... "user" "pass" catalog schema
+# Create a dot file of the tables/foreign-keys
+# --- [--infer_fk [--tableses]] dbi:... "user" "pass" catalog schema > dot
+# The option, --infer_fk, will guess that a field is a foriegn key if it looks like "<table>_<id>"
+# The option, --tableses, will pluralize the table name the --infer_fk guesses
+# These seem to give good layouts (dot is bad with unconnected tables)
+# dot -Kfdp -Gsplines=true
+# dot -Kneato -Gsplines=true
 
 package ERD;
-
-die "usage: ".`head -2 $0 | tail -1` if @ARGV < 1;
 
 use warnings; use strict; no warnings 'uninitialized';
 use DBI;
 use Data::Dumper;
 
 my $DBH;
+my ($Infer_fk, $Tableses);
+
+sub help { die "usage: ".`awk 'FNR==2,/^\$/ {print}' $0` if @ARGV < 1; }
 
 sub main {
+    while ($ARGV[0] =~ /^--/) {
+      if ($ARGV[0] eq '--infer_fk') {
+        $Infer_fk = 1;
+        shift @ARGV;
+        next;
+        }
+      if ($ARGV[0] eq '--tableses') {
+        require Lingua::EN::Inflect; import Lingua::EN::Inflect 'PL';
+        $Tableses = 1;
+        shift @ARGV;
+        next;
+        }
+      help();
+      }
+
+    help();
+
     my ($con,$usr,$pas, $catalog, $schema) = @ARGV; # (shift @ARGV, shift @ARGV, shift @ARGV);
 
     $DBH = DBI->connect($con,$usr,$pas, { RaiseError => 1,});
@@ -19,7 +43,7 @@ sub main {
     if (!defined $catalog) {
         print "Table Types:\n";
         print_table_info('','','','%','TABLE_TYPE');
-        print "Catalogs\n";
+        print "Catalogs:\n";
         print_table_info('%','','','');
         }
     elsif (!defined $schema) {
@@ -28,6 +52,8 @@ sub main {
         }
     else {
         print "digraph $schema {\n";
+        print "graph [overlap=false];\n";
+        print "edge [tailclip=false];\n";
         # print_table_info($catalog,$schema,'%','TABLE','TABLE_NAME','TABLE_TYPE');
         print_table_info($catalog,$schema,'%','TABLE',\&table_relations);
         print "}\n";
@@ -39,22 +65,34 @@ sub table_relations {
     my ($table_info, $names, $catalog, $schema) = @_;
 
     $names = [ 'TABLE_NAME' ];
+
+    # header
     if (!$table_info) {
         # print join(", ",@$names),"\n";
         return;
         }
 
+    # Table decl
     # print join(", ",map {$table_info->{$_}} @$names),"\n";
-    print $table_info->{'TABLE_NAME'}," [shape=record,label=\"{",$table_info->{'TABLE_NAME'}," | cols.. ";
+    my ($col_list, $column_names) = get_column_list($catalog, $schema, $table_info->{'TABLE_NAME'});
+    #my @ids = map {$_->[0]} @$col_list;
+    #my @types = map {$_->[1]} @$col_list;
+    #my @annots = map {$_->[2]} @$col_list;
+    print $table_info->{'TABLE_NAME'},' [shape=none,margin=0,label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="3"><TR><TD ALIGN="left" COLSPAN="3">',$table_info->{'TABLE_NAME'},"</TD></TR>".join("\n",@$col_list);
+    #print $table_info->{'TABLE_NAME'}," [shape=record,label=\"";
+    #print "{".join('|',@ids)."}";
+    #print "|{".join('|',@types)."}";
+    #print "|{".join('|',@annots)."}";
     # do columns
     # then do ports for fk?
-    print "}\"]\n";
+    print "</TABLE>>];\n";
 
+
+    # Start FK decl
     my @arcs;
     my $sth = $DBH->foreign_key_info( undef, undef, undef,
            , $catalog, $schema, $table_info->{'TABLE_NAME'} );
 
-    warn $sth;
     # sqlite gives null for foreign_key_info
     if (!$sth) {
         my $fki_fn = 'remedial_foreign_key_info_'.$DBH->{'Driver'}->{'Name'};
@@ -63,14 +101,13 @@ sub table_relations {
             my $refs = &$fki_fn($catalog, $schema, $table_info);
             use strict 'refs';
 
-            warn "fki ".Dumper($refs);
             # print $table_info->{'TABLE_NAME'}," [shape=box];\n";
             foreach (@$refs) {
                push @arcs, fk_arc($_);
                }
             }
         else {
-            die "can't $fki_fn";
+            die "\$dbh->foreign_key_info gave undef for table '".$table_info->{'TABLE_NAME'}."', and there is no ${fki_fn}() to get the same info";
             }
         }
     
@@ -82,19 +119,90 @@ sub table_relations {
             push @arcs, fk_arc($fk_info);
             }
         }
+
+    if ($Infer_fk && !@arcs) {
+      my $refs = infer_foreign_keys($catalog, $schema, $table_info->{'TABLE_NAME'}, $column_names);
+      @arcs = map {fk_arc($_)} @$refs;
+      }
+
     print @arcs;
+    }
+
+sub infer_foreign_keys {
+  my ($catalog, $schema, $table_name, $column_names) = @_;
+
+  my @refs;
+  foreach my $column (@$column_names) {
+    if ($column =~ /^(.+)_id$/) {
+      my $ftable = $1;
+      $ftable = PL($ftable) if $Tableses;
+      push @refs, {
+          PKTABLE_CAT => $catalog,
+          PKTABLE_SCHEM => $schema,
+          PKTABLE_NAME => $ftable,
+          PKCOLUMN_NAME => 'id',
+          FKTABLE_CAT => $catalog,
+          FKTABLE_SCHEM => $schema,
+          FKTABLE_NAME => $table_name,
+          FKCOLUMN_NAME => $column,
+          };
+      }
+    }
+  \@refs;
+  }
+
+sub get_column_list {
+    my ($catalog, $schema, $table_name) = @_;
+    my $sth = $DBH->column_info( $catalog, $schema, $table_name,'%');
+    die "no col info" if !$sth;
+
+    # my @ci_names = qw(COLUMN_NAME COLUMN_DEF DATA_TYPE TYPE_NAME); # sort @{$sth->{'NAME_uc'}};
+    # print join(", ",@ci_names),"\n";
+    my @columns;
+    my @column_names;
+    while (my $col_info = $sth->fetchrow_hashref('NAME_uc')) {
+        push @column_names, $col_info->{'COLUMN_NAME'};
+
+        my @col; # fld, type, not-null
+        push @col, "<TD ALIGN='left' PORT='".$col_info->{'COLUMN_NAME'}."'>".$col_info->{'COLUMN_NAME'}."</TD>";
+
+        push @col, "<TD ALIGN='left'>".$col_info->{'TYPE_NAME'} || $col_info->{'SQL_DATA_TYPE'};
+        if ($col_info->{'DECIMAL_DIGITS'} != 0) {
+            if ($col_info->{'COLUMN_SIZE'} =~ /,/) {
+              $col[-1] .= sprintf "(%s)",@$col_info{'DECIMAL_DIGITS'};
+              }
+            else {
+              $col[-1] .= sprintf "(%d.%d)",@$col_info{qw(COLUMN_SIZE DECIMAL_DIGITS)};
+              }
+            }
+        elsif ($col_info->{'COLUMN_SIZE'} > 0) {
+            $col[-1] .= sprintf "(%d)",$col_info->{'COLUMN_SIZE'};
+            }
+        $col[-1] .= "</TD>";
+
+        push @col, "<TD ALIGN='left'>";
+        my $not_null = ($col_info->{'NULLABLE'} == 0) ? "not null" : '';
+        $col[-1] .= $not_null;
+        $col[-1] .= ($not_null ? "<BR/>" : '').$col_info->{'COLUMN_DEF'} if $col_info->{'COLUMN_DEF'};
+        $col[-1] .= "</TD>";
+
+        # printf STDERR "#%d %s %s/%s(%d.%d) NULL %d DEFAULT %s\n", @$col_info{qw(ORDINAL_POSITION COLUMN_NAME TYPE_NAME SQL_DATA_TYPE COLUMN_SIZE DECIMAL_DIGITS NULLABLE COLUMN_DEF)};
+        # print join(", ",map{$col_info->{$_}} @ci_names),"\n";
+        push @columns, '<TR>'.join("", @col)."</TR>";
+        }
+    (\@columns, \@column_names);
     }
 
 sub fk_arc {
     my ($fkinfo) = @_;
     
-    "",($fkinfo->{'FKTABLE_NAME'} || $fkinfo->{'FK_TABLE_NAME'}),
+    my $from_table = ($fkinfo->{'FKTABLE_NAME'} || $fkinfo->{'FK_TABLE_NAME'});
+    my $to_table = ($fkinfo->{'PKTABLE_NAME'} || $fkinfo->{'UK_TABLE_NAME'});
+    my $from_field = ($fkinfo->{'FKCOLUMN_NAME'} || $fkinfo->{'FK_COLUMN_NAME'});
+    my $to_field = ($fkinfo->{'PKCOLUMN_NAME'} || $fkinfo->{'PK_COLUMN_NAME'});
+    "",$from_table.":$from_field".":w",
         " -> ",
-        ($fkinfo->{'PKTABLE_NAME'} || $fkinfo->{'UK_TABLE_NAME'}),
-        " ["
-        ."taillabel=\"". ($fkinfo->{'FKCOLUMN_NAME'} || $fkinfo->{'FK_COLUMN_NAME'}).'"'
-        # .",taillabel=\"". ($fkinfo->{'PKCOLUMN_NAME'} || $fkinfo->{'PK_COLUMN_NAME'}).'"'
-        ."];",
+        $to_table.":$to_field".":w",
         "\n"
         ;
     }
@@ -120,6 +228,14 @@ sub print_table_info {
         }
     }
 
+sub remedial_foreign_key_info_Pg {
+    # Actually, this is 
+    my ($catalog, $schema, $row) = @_;
+    # return n-rows of a subset of the info that foreign_key_info() gives
+    # postgres knows how, so this means there is no FK for the table
+    []
+    }
+
 sub remedial_foreign_key_info_SQLite {
     my ($catalog, $schema, $row) = @_;
     # return n-rows of a subset of the info that foreign_key_info() gives
@@ -128,7 +244,6 @@ sub remedial_foreign_key_info_SQLite {
     my @refs;
     while (my $tirow = $sth->fetchrow_hashref('NAME_uc')) {
         my $sql = $tirow->{'SQLITE_SQL'};
-        warn "test $sql\n";
         while (my ($col,$ftable,$fcol,$rest) = $sql =~ /\b(\w+) references (\w+) \((\w+)\)(.+)/) {
             push @refs, { 
                 PKTABLE_CAT => $catalog,
@@ -143,7 +258,7 @@ sub remedial_foreign_key_info_SQLite {
             $sql = $rest;
             }
         }
-    warn Dumper(\@refs) if @refs;
     \@refs;
     }
+
 main();

@@ -9,8 +9,10 @@
 
 <body style="background-color: white">
 
-<p><a name="__index__"></a></p>
+
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 
 <ul>
 
@@ -19,8 +21,8 @@
 	<li><a href="#state_variables">State variables</a></li>
 	<ul>
 
-		<li><a href="#_test__response">$Test::Response</a></li>
-		<li><a href="#_test__request">$Test::Request</a></li>
+		<li><a href="#_test__website__response">$Test::Website::Response</a></li>
+		<li><a href="#_test__website__request">$Test::Website::Request</a></li>
 		<li><a href="#test__website__ua__">Test::Website::UA()</a></li>
 	</ul>
 
@@ -28,78 +30,79 @@
 	<ul>
 
 		<li><a href="#use_test__website_">use Test::Website;</a></li>
-		<li><a href="#baseurl__someabsoluteurl_">baseurl 'some-absolute-url'</a></li>
-		<li><a href="#fail_on_why___elementpredicates_">fail_on ``why'', &lt;element-predicates&gt;</a></li>
-		<li><a href="#save_html_directory">save_html ``directory''</a></li>
-		<li><a href="#basic_auth_name____password_">basic_auth ``name'' =&gt; ``password'';</a></li>
+		<li><a href="#baseurl__some_absolute_url_">baseurl 'some-absolute-url'</a></li>
+		<li><a href="#fail_on_why___element_predicates_">fail_on &quot;why&quot;, &lt;element-predicates&gt;</a></li>
+		<li><a href="#save_html_directory">save_html &quot;directory&quot;</a></li>
+		<li><a href="#basic_auth_name____password_">basic_auth &quot;name&quot; =&gt; &quot;password&quot;;</a></li>
 	</ul>
 
 	<li><a href="#requests">Requests</a></li>
 	<ul>
 
 		<li><a href="#forget_cookies">forget_cookies</a></li>
-		<li><a href="#get_url">get ``url''</a></li>
+		<li><a href="#get_url">get &quot;url&quot;</a></li>
 		<li><a href="#get___filehandle">get \*FILEHANDLE</a></li>
-		<li><a href="#submit__elementpredicate_">submit &lt;element-predicate&gt;</a></li>
+		<li><a href="#get_and_nofetch">get and NOFETCH</a></li>
+		<li><a href="#submit__element_predicate_">submit &lt;element-predicate&gt;</a></li>
 		<ul>
 
-			<li><a href="#shorthand_submit">Short-hand submit</a></li>
-			<li><a href="#shorthand_submit_buttonname">Short-hand submit ``buttonname''</a></li>
+			<li><a href="#short_hand_submit">Short-hand submit</a></li>
+			<li><a href="#short_hand_submit_buttonname">Short-hand submit &quot;buttonname&quot;</a></li>
 		</ul>
 
-		<li><a href="#submit_href_________fields______k__v_____">submit href =&gt; ``...'', fields =&gt; { k=&gt;v,...}</a></li>
-		<li><a href="#set_value____somevalue___elementpredicates_">set value =&gt; ``somevalue'', &lt;element-predicates&gt;</a></li>
+		<li><a href="#submit_href_________fields______k__v_____">submit href =&gt; &quot;...&quot;, fields =&gt; { k=&gt;v,...}</a></li>
+		<li><a href="#set_value____somevalue___element_predicates_">set value =&gt; &quot;somevalue&quot;, &lt;element-predicates&gt;</a></li>
 		<ul>
 
-			<li><a href="#shorthand_set_somefieldname_____some_value_____">Short-hand set somefieldname =&gt; 'some value',...</a></li>
+			<li><a href="#short_hand_set_somefieldname_____some_value_____">Short-hand set somefieldname =&gt; 'some value',...</a></li>
 			<li><a href="#idiom_set__checkorradioorselectname_">Idiom set 'checkOrRadioOrSelectName'</a></li>
 			<li><a href="#idiom_set_somename____undef">Idiom set somename =&gt; undef</a></li>
-			<li><a href="#shorthand_set__elementpredicate_for_checkbox_radio_select_">Short-hand set &lt;element-predicate for checkbox/radio/select&gt;</a></li>
-			<li><a href="#force___somevalue__predforhidden">force=&gt; ``somevalue'', pred-for-hidden</a></li>
-			<li><a href="#shorthand_unset__field_">Short-hand unset 'field'</a></li>
-			<li><a href="#submitting_arbitrary_queryparams">Submitting arbitrary query-params</a></li>
+			<li><a href="#short_hand_set__element_predicate_for_checkbox_radio_select_">Short-hand set &lt;element-predicate for checkbox/radio/select&gt;</a></li>
+			<li><a href="#force___somevalue__pred_for_hidden">force=&gt; &quot;somevalue&quot;, pred-for-hidden</a></li>
+			<li><a href="#short_hand_unset__field_">Short-hand unset 'field'</a></li>
+			<li><a href="#submitting_arbitrary_query_params">Submitting arbitrary query-params</a></li>
 		</ul>
 
 	</ul>
 
-	<li><a href="#method_html__element_form_field_value">Method HTML::Element-&gt;form_field_value</a></li>
+	<li><a href="#method_html__element__form_field_value">Method HTML::Element-&gt;form_field_value</a></li>
 	<li><a href="#tests_extraction">Tests/Extraction</a></li>
 	<ul>
 
-		<li><a href="#_elementpredicate____">&lt;element-predicate&gt;...</a></li>
+		<li><a href="#_element_predicate____">&lt;element-predicate&gt;...</a></li>
 		<ul>
 
-			<li><a href="#attr____value_____">attr =&gt; ``value'', ...</a></li>
+			<li><a href="#attr____value_____">attr =&gt; &quot;value&quot;, ...</a></li>
 			<ul>
 
 				<li><a href="#psuedo_attr__tag">psuedo attr: tag</a></li>
 				<li><a href="#psuedo_attr__n">psuedo attr: n</a></li>
 			</ul>
 
-			<li><a href="#xpath_expr___or_xpath__expr">xpath(``expr''), OR xpath=&gt;``expr''</a></li>
-			<li><a href="#not_____elementpredicate____">not =&gt; {element-predicate...}</a></li>
-			<li><a href="#firstof_____elementpredicates_">first-of =&gt; {element-predicates}</a></li>
-			<li><a href="#in_____elementpredicate_">in =&gt; {element-predicate}</a></li>
-			<li><a href="#shorthand_form____id_or_action_or_name_or_n">Short-hand form =&gt; ``id or action or name or n''</a></li>
+			<li><a href="#xpath_expr___or_xpath__expr">xpath(&quot;expr&quot;), OR xpath=&gt;&quot;expr&quot;</a></li>
+			<li><a href="#not_____element_predicate____">not =&gt; {element-predicate...}</a></li>
+			<li><a href="#first_of_____element_predicates_">first-of =&gt; {element-predicates}</a></li>
+			<li><a href="#in_____element_predicate_">in =&gt; {element-predicate}</a></li>
+			<li><a href="#short_hand_form____id_or_action_or_name_or_n">Short-hand form =&gt; &quot;id or action or name or n&quot;</a></li>
 		</ul>
 
-		<li><a href="#element__elementpredicate____">element &lt;element-predicate&gt;...</a></li>
+		<li><a href="#element__element_predicate____">element &lt;element-predicate&gt;...</a></li>
 		<ul>
 
-			<li><a href="#shorthand__element_tagname">Short-hand: element ``tagname''</a></li>
-			<li><a href="#predicate_maybe_____elementpredicate____">Predicate maybe =&gt; {element-predicate...}</a></li>
+			<li><a href="#short_hand__element_tagname">Short-hand: element &quot;tagname&quot;</a></li>
+			<li><a href="#predicate_maybe_____element_predicate____">Predicate maybe =&gt; {element-predicate...}</a></li>
 			<li><a href="#idiom__find_an_element">Idiom: find an element</a></li>
-			<li><a href="#shorthand_not_element____">Short-hand not_element ...</a></li>
-			<li><a href="#shorthand_maybeelement____">Short-hand maybe-element ...</a></li>
-			<li><a href="#shorthand_allelement_____for_element_all_________">Short-hand all-element ... for element all =&gt; {...}</a></li>
-			<li><a href="#shorthand_field_name____">Short-hand field ``name'' ...</a></li>
+			<li><a href="#short_hand_not_element____">Short-hand not_element ...</a></li>
+			<li><a href="#short_hand_maybe_element____">Short-hand maybe-element ...</a></li>
+			<li><a href="#short_hand_all_element_____for_element_all_________">Short-hand all-element ... for element all =&gt; {...}</a></li>
+			<li><a href="#short_hand_field_name____">Short-hand field &quot;name&quot; ...</a></li>
 		</ul>
 
-		<li><a href="#follow_element__elementpredicates_">follow element &lt;element-predicates&gt;</a></li>
+		<li><a href="#follow_element__element_predicates_">follow element &lt;element-predicates&gt;</a></li>
 		<ul>
 
-			<li><a href="#shorthand_follow__elementpredicates_">Short-hand follow &lt;element-predicates&gt;</a></li>
-			<li><a href="#shorthand_follow__hrefvalue___or_follow_qr_hrefvalue______">Short-hand follow 'hrefvalue'; or follow qr/hrefvalue/, ...</a></li>
+			<li><a href="#short_hand_follow__element_predicates_">Short-hand follow &lt;element-predicates&gt;</a></li>
+			<li><a href="#short_hand_follow__hrefvalue___or_follow_qr_hrefvalue______">Short-hand follow 'hrefvalue'; or follow qr/hrefvalue/, ...</a></li>
 		</ul>
 
 	</ul>
@@ -110,9 +113,11 @@
 	<li><a href="#todo">TODO</a></li>
 	<li><a href="#creating_the_pod">Creating the POD</a></li>
 </ul>
+
+<hr name="index" />
+</div>
 <!-- INDEX END -->
 
-<hr />
 <p>
 </p>
 <h1><a name="name">Name</a></h1>
@@ -123,7 +128,7 @@
 <h1><a name="synopsis">Synopsis</a></h1>
 <p>A concise set of commands for interacting with web-sites, and testing them (works with <a href="/Test/Builder.html">the Test::Builder manpage</a>). 
 The DSL strives for DWIM'ness, and emphasizes simple matching expressions.</p>
-<p>The commands are like the interaction you would have with a web-page: ``get'' an url, ``set'' a form-field, ``submit'' a form, etc. Also, checking for elements/text.</p>
+<p>The commands are like the interaction you would have with a web-page: &quot;get&quot; an url, &quot;set&quot; a form-field, &quot;submit&quot; a form, etc. Also, checking for elements/text.</p>
 <pre>
     use Test::Simple;  # or Test::More etc.
     use Test::Website;</pre>
@@ -138,8 +143,9 @@ The DSL strives for DWIM'ness, and emphasizes simple matching expressions.</p>
     my $link = element 'a', text =&gt; qr/Rakudo.org/;
     print &quot;Will link to &quot;.$link-&gt;attr('href').&quot;\n&quot;;
     follow $link;</pre>
-<p>Most of the commands _are_ tests. E.g. ``element'' will fail if there is no such element. So, we play well
+<p>Most of the commands _are_ tests. E.g. &quot;element&quot; will fail if there is no such element. So, we play well
 with all the <a href="/Test/More.html">the Test::More manpage</a> and related modules (e.g. <a href="/Test/Behaviour/Spec.html">the Test::Behaviour::Spec manpage</a>).</p>
+<p>Note that this package recognizes HTML and XML pages. Obviously, form type interactions with XML pages may not make sense.</p>
 <p>Other CPAN modules (<a href="#see_also">See Also</a>) have various approaches to testing/interaction with web-sites.</p>
 <p>
 </p>
@@ -147,17 +153,17 @@ with all the <a href="/Test/More.html">the Test::More manpage</a> and related mo
 <h1><a name="state_variables">State variables</a></h1>
 <p>
 </p>
-<h2><a name="_test__response">$Test::Response</a></h2>
+<h2><a name="_test__website__response">$Test::Website::Response</a></h2>
 <p>This is a <a href="/HTTP/Response.html">the HTTP::Response manpage</a> object. It holds the last response, whether from a get or post.</p>
 <p>Hint: $Response-&gt;previous is defined if there was a redirect.</p>
 <p>
 </p>
-<h2><a name="_test__request">$Test::Request</a></h2>
+<h2><a name="_test__website__request">$Test::Website::Request</a></h2>
 <p>This is a <a href="/HTTP/Request.html">the HTTP::Request manpage</a> object. It holds the last request, whether from a get or post.</p>
 <p>
 </p>
 <h2><a name="test__website__ua__">Test::Website::UA()</a></h2>
-<p>The LWP::UserAgent, with a slight tweak: ``On redirect, do not re-send post-data.''</p>
+<p>The LWP::UserAgent, with a slight tweak: &quot;On redirect, do not re-send post-data.&quot;</p>
 <p>A singleton.</p>
 <p>
 </p>
@@ -171,25 +177,25 @@ into multiple modules, but all the commands are aggregated into a top-level impo
 <p>You'll need <a href="/Crypt/SSLeay.html">the Crypt::SSLeay manpage</a> to do https.</p>
 <p>
 </p>
-<h2><a name="baseurl__someabsoluteurl_">baseurl 'some-absolute-url'</a></h2>
-<p>The baseurl is convenient so you can use relative urls. This only affects ``get'', and you can
-always provide an absolute url in ``get''.</p>
+<h2><a name="baseurl__some_absolute_url_">baseurl 'some-absolute-url'</a></h2>
+<p>The baseurl is convenient so you can use relative urls. This only affects &quot;get&quot;, and you can
+always provide an absolute url in &quot;get&quot;.</p>
 <p>
 </p>
-<h2><a name="fail_on_why___elementpredicates_">fail_on ``why'', &lt;element-predicates&gt;</a></h2>
-<p>Needs a better name. This is really ``elements that must NOT be on a page.''</p>
-<p>When a new response is obtained, each ``fail_on'' is tested, and causes a failure if it matches.</p>
+<h2><a name="fail_on_why___element_predicates_">fail_on &quot;why&quot;, &lt;element-predicates&gt;</a></h2>
+<p>Needs a better name. This is really &quot;elements that must NOT be on a page.&quot;</p>
+<p>When a new response is obtained, each &quot;fail_on&quot; is tested, and causes a failure if it matches.</p>
 <p>See <a href="#element_predicates">Element Predicates</a> below.</p>
 <pre>
     fail_on &quot;PHP Warning notice&quot;, text =&gt; qr/Notice: /;</pre>
 <p>
 </p>
-<h2><a name="save_html_directory">save_html ``directory''</a></h2>
+<h2><a name="save_html_directory">save_html &quot;directory&quot;</a></h2>
 <p>Response content will be saved in the directory, with a file-name mangled from the url. By
 default, nothing is saved.</p>
 <p>
 </p>
-<h2><a name="basic_auth_name____password_">basic_auth ``name'' =&gt; ``password'';</a></h2>
+<h2><a name="basic_auth_name____password_">basic_auth &quot;name&quot; =&gt; &quot;password&quot;;</a></h2>
 <p>Set the username/password for basic auth. This sticks through subsequent requests.</p>
 <p>To remove the basic auth user/pass:</p>
 <pre>
@@ -206,10 +212,10 @@ as tests.</p>
 <p>Forgets all cookies. The only other session-state might be encoded in urls in the html.</p>
 <p>
 </p>
-<h2><a name="get_url">get ``url''</a></h2>
+<h2><a name="get_url">get &quot;url&quot;</a></h2>
 <p>Fetches the absolute or relative url. If <a href="#save_html_directory">save_html</a> is on, saves to that directory (under the url name).</p>
 <p>Returns the <a href="/HTTP/Response.html">the HTTP::Response manpage</a>. Sets <a href="#_test__request">$Request</a>, <a href="#_test__response">$Response</a>;</p>
-<p>The url is optional if you have a <a href="#baseurl__someabsoluteurl_">base_url</a>. That's convenient for getting the ``home'' page.</p>
+<p>The url is optional if you have a <a href="#baseurl__someabsoluteurl_">base_url</a>. That's convenient for getting the &quot;home&quot; page.</p>
 <pre>
     base_url '<a href="http://google.com">http://google.com</a>';
     get;</pre>
@@ -222,33 +228,58 @@ as tests.</p>
 <p>I use this to test the module, stubbing (via <a href="/Sub/Override.html">the Sub::Override manpage</a>) the HTTP parts.</p>
 <p>
 </p>
-<h2><a name="submit__elementpredicate_">submit &lt;element-predicate&gt;</a></h2>
+<h2><a name="get_and_nofetch">get and NOFETCH</a></h2>
+<p>You can cause Test::Website to use cached web-pages by setting the environment variable NOFETCH
+to the name of a file containing a map.</p>
+<p>Example:</p>
+<pre>
+    env NOFETCH=mapfile perl something-using-test-website</pre>
+<p>The &quot;mapfile&quot; is perl-code that has a last array-ref like this
+    [
+    ['arg to a get()' =&gt; 'filename of cached web-page'],
+    [/regex matchine get()'s arg/ =&gt; 'filename of cached web-page'],
+    ...
+    ]</p>
+<p>The cached web-page must have minimal http headers:</p>
+<pre>
+    HTTP/1.x 200 OK</pre>
+<pre>
+    &lt;html&gt;....&lt;/html&gt;</pre>
+<p>Add the mime-type to get xml parsing:</p>
+<pre>
+    HTTP/1.x 200 OK
+    Content-Type: application/atom+xml; charset=UTF-8</pre>
+<pre>
+    &lt;someoutertag&gt;...&lt;/someoutertag&gt;</pre>
+<p>
+</p>
+<h2><a name="submit__element_predicate_">submit &lt;element-predicate&gt;</a></h2>
 <p>Submit the matched form (see <a href="#_elementpredicate____">element-predicate</a>, must match a form, or a button. If it matches a form, this will include the first button in the posted params.</p>
-<p>if you omit ``tag'', assumes</p>
+<p>if you omit &quot;tag&quot;, assumes</p>
 <pre>
     tag =&gt; input, type =&gt; submit
     or tag =&gt; button</pre>
 <p>
 </p>
-<h3><a name="shorthand_submit">Short-hand submit</a></h3>
+<h3><a name="short_hand_submit">Short-hand submit</a></h3>
 <p>For:</p>
 <pre>
     &quot;use first button or form&quot;</pre>
 <p>
 </p>
-<h3><a name="shorthand_submit_buttonname">Short-hand submit ``buttonname''</a></h3>
+<h3><a name="short_hand_submit_buttonname">Short-hand submit &quot;buttonname&quot;</a></h3>
 <p>For:</p>
 <pre>
-    &quot;use button named... OR form id/action/name|n ...&quot;</pre>
+    &quot;use button named/value... OR form id/action/name|n ...&quot;</pre>
 <p>
 </p>
-<h2><a name="submit_href_________fields______k__v_____">submit href =&gt; ``...'', fields =&gt; { k=&gt;v,...}</a></h2>
+<h2><a name="submit_href_________fields______k__v_____">submit href =&gt; &quot;...&quot;, fields =&gt; { k=&gt;v,...}</a></h2>
 <p>Submits a synthesized POST.</p>
 <p>
 </p>
-<h2><a name="set_value____somevalue___elementpredicates_">set value =&gt; ``somevalue'', &lt;element-predicates&gt;</a></h2>
+<h2><a name="set_value____somevalue___element_predicates_">set value =&gt; &quot;somevalue&quot;, &lt;element-predicates&gt;</a></h2>
 <p>Will set a form-field's value. Will find the first field that matches (the 'value' is not a predicate), of course.
-Use the ``form'' predicate if necessary to pick a form.</p>
+Use the &quot;form&quot; predicate if necessary to pick a form.</p>
 <pre>
     Form-field  Behavior
     text        fills in the value
@@ -259,32 +290,31 @@ Use the ``form'' predicate if necessary to pick a form.</p>
     checkbox    &quot;checks&quot; that checkbox (see below).
     radio       &quot;checks&quot; only that radio (un-checks the other of the same name) (see below).
     hidden      causes a failure (see &quot;force =&gt; {}&quot;).</pre>
-<p>For a ``select'' field, the value must match one of it's ``options''. You can
+<p>For a &quot;select&quot; field, the value must match one of it's &quot;options&quot;. You can
 match the value attribute, or the option's text.</p>
 <p>For a checkbox and radio, the value must match an value attribute.</p>
-<p>To set multiple checkboxes, or multiple options, use a regex value.
-</p>
+<p>To set multiple checkboxes, or multiple options, use a regex value.</p>
 <pre>
 
     set name=&quot;somecheckbox&quot;, value =&gt; qr/^[23]$/;
     set name=&quot;someselect&quot;, value =&gt; qr/^MD|MI|LA$/;</pre>
 <p>Of course, this fails if the matched element is not a form-field.</p>
-<p>NB: You must provide some predicate in additino to ``value=&gt;v''.</p>
+<p>NB: You must provide some predicate in additino to &quot;value=&gt;v&quot;.</p>
 <p>
 </p>
-<h3><a name="shorthand_set_somefieldname_____some_value_____">Short-hand set somefieldname =&gt; 'some value',...</a></h3>
+<h3><a name="short_hand_set_somefieldname_____some_value_____">Short-hand set somefieldname =&gt; 'some value',...</a></h3>
 <p>For:</p>
 <pre>
     set name=&gt;&quot;somefieldname&quot;, value=&gt;&quot;somevalue&quot;, ...</pre>
 <p>This is the most convenient form.</p>
-<p>There is some ambiquity here versus just a list of k=&gt;v predicates. So, we try to treat the first k=&gt;v as the ``name'' attribute, and ``value'' attribute. If that fails, we try to treat them as attributeName=&gt;attributeValue.</p>
+<p>There is some ambiquity here versus just a list of k=&gt;v predicates. So, we try to treat the first k=&gt;v as the &quot;name&quot; attribute, and &quot;value&quot; attribute. If that fails, we try to treat them as attributeName=&gt;attributeValue.</p>
 <p>
 </p>
 <h3><a name="idiom_set__checkorradioorselectname_">Idiom set 'checkOrRadioOrSelectName'</a></h3>
 <p>For:</p>
 <pre>
     &quot;set the first radio/option, or all checkbox&quot;</pre>
-<p>Convenient when there is only one checkbox/radio for a name. Will set all the options for a ``multiple'' ``select''.</p>
+<p>Convenient when there is only one checkbox/radio for a name. Will set all the options for a &quot;multiple&quot; &quot;select&quot;.</p>
 <p>
 </p>
 <h3><a name="idiom_set_somename____undef">Idiom set somename =&gt; undef</a></h3>
@@ -294,16 +324,16 @@ match the value attribute, or the option's text.</p>
 <p>That field will be omitted from submitted params.</p>
 <p>
 </p>
-<h3><a name="shorthand_set__elementpredicate_for_checkbox_radio_select_">Short-hand set &lt;element-predicate for checkbox/radio/select&gt;</a></h3>
+<h3><a name="short_hand_set__element_predicate_for_checkbox_radio_select_">Short-hand set &lt;element-predicate for checkbox/radio/select&gt;</a></h3>
 <p>For:</p>
 <pre>
     set value =&gt; qr/./, &lt;predicates...&gt;</pre>
 <p>Only for radio/check/select.</p>
-<p>You may omit the ``value'' for checkbox/radio/select.</p>
+<p>You may omit the &quot;value&quot; for checkbox/radio/select.</p>
 <p>For radios, the first matching radio will be set; for checkboxes, all the matching checkboxes will be set.</p>
-<p>For ``select'', if it is a ``multiple'',
-then all the options of that ``select'' will be ``selected''; for a non-multiple ``select'',
-only the first option of the matched ``select''.</p>
+<p>For &quot;select&quot;, if it is a &quot;multiple&quot;,
+then all the options of that &quot;select&quot; will be &quot;selected&quot;; for a non-multiple &quot;select&quot;,
+only the first option of the matched &quot;select&quot;.</p>
 <pre>
     set name=&gt;&quot;somecheckbox&quot;; # sets all the checkboxes w/that name
     set name=&gt;&quot;someradio&quot;; # sets first radio of that name
@@ -311,31 +341,31 @@ only the first option of the matched ``select''.</p>
     set name=&gt;&quot;multiselect&quot;; # all of its options &quot;selected&quot;</pre>
 <p>
 </p>
-<h3><a name="force___somevalue__predforhidden">force=&gt; ``somevalue'', pred-for-hidden</a></h3>
-<p>You can only set a hidden field by using ``force'' instead of value.</p>
+<h3><a name="force___somevalue__pred_for_hidden">force=&gt; &quot;somevalue&quot;, pred-for-hidden</a></h3>
+<p>You can only set a hidden field by using &quot;force&quot; instead of value.</p>
 <p>
 </p>
-<h3><a name="shorthand_unset__field_">Short-hand unset 'field'</a></h3>
+<h3><a name="short_hand_unset__field_">Short-hand unset 'field'</a></h3>
 <p>For:</p>
 <pre>
     set name=&gt;'field', value=&gt;'undef'</pre>
 <p>Unset's the field</p>
 <p>
 </p>
-<h3><a name="submitting_arbitrary_queryparams">Submitting arbitrary query-params</a></h3>
-<p>If you want to ``set'' a radio/checkbox/select to a non-existent ``value'', or add non-existent fields,
+<h3><a name="submitting_arbitrary_query_params">Submitting arbitrary query-params</a></h3>
+<p>If you want to &quot;set&quot; a radio/checkbox/select to a non-existent &quot;value&quot;, or add non-existent fields,
 you'll have to use: submit force=&gt;[]. See Submit.</p>
 <p>
 </p>
 <hr />
-<h1><a name="method_html__element_form_field_value">Method HTML::Element-&gt;form_field_value</a></h1>
-<p>An extension to HTML::Element, gives the ``value'' of a formfield:</p>
+<h1><a name="method_html__element__form_field_value">Method HTML::Element-&gt;form_field_value</a></h1>
+<p>An extension to HTML::Element, gives the &quot;value&quot; of a formfield:</p>
 <pre>
     my $e = element 'select', name =&gt; &quot;state&quot;;
-    my $itsvalue = $e-&gt;value;</pre>
-<p>Will set the fields ``value'' if $value is given.</p>
+    my $itsvalue = $e-&gt;form_field_value;</pre>
+<p>Will set the fields &quot;value&quot; if $value is given.</p>
 <pre>
-    $e-&gt;value(&quot;MD&quot;);</pre>
+    $e-&gt;form_field_value(&quot;MD&quot;);</pre>
 <p>Works roughly like so:</p>
 <pre>
     text|hidden|password : -&gt;attr('value')
@@ -349,27 +379,41 @@ you'll have to use: submit force=&gt;[]. See Submit.</p>
 <h1><a name="tests_extraction">Tests/Extraction</a></h1>
 <p>
 </p>
-<h2><a name="_elementpredicate____">&lt;element-predicate&gt;...</a></h2>
+<h2><a name="_element_predicate____">&lt;element-predicate&gt;...</a></h2>
 <p>These are the arguments to most of the tests (e.g. <a href="#element">element</a>), specifies the element in the html document.</p>
-<p>You can have multiple predicates (see below).  The predicates are usually and'd together, but see ``attr=&gt;value'' below.</p>
-<p>There are some short-hands (e.g. <a href="#form">form</a>), and see each command (e.g. <a href="#element__elementpredicate____">element</a>) for special short-hand predicates.</p>
+<p>You can have multiple predicates (see below).  The predicates are usually and'd together, but see &quot;attr=&gt;value&quot; below.</p>
+<p>There are some short-hands (e.g. <a href="#form">form</a>), and see each command (e.g. <em>element</em>) for special short-hand predicates.</p>
 <p>NB: Some predicates take a list of predicates, e.g.
     in =&gt; { .... }
 You may not repeat key-names in such a list, e.g. wrong: in =&gt; { id=&gt;'x', id=&gt;'y' }</p>
 <p>
 </p>
-<h3><a name="attr____value_____">attr =&gt; ``value'', ...</a></h3>
-<p>Basic ``atribute has value'' predicate. May have several
-with the same attribute name. If you repeat a ``attr'', they will be or'd.</p>
+<h3><a name="attr____value_____">attr =&gt; &quot;value&quot;, ...</a></h3>
+<p>Basic &quot;atribute has value&quot; predicate. May have several
+with the same attribute name. If you repeat a &quot;attr&quot;, they will be or'd.</p>
 <p>The attr and value can be:</p>
 <pre>
         literals
         qr//
         sub(HTML::Element) {return t/f} # not implemented yet</pre>
+<p>Notes on regex's:</p>
+<p>For your convenience, a predicate of { text =&gt; qr/..../ } will capture the match as an arrayref HTML::Element-&gt;attr('_re').
+The first element of the arrayref is the entire regex match, and then your capturing parenthesis. E.g.</p>
+<pre>
+    $res = element text =&gt; qr/login (for admin)/;
+    ($wholeMatchedRegex, $justForAdmin) = @{ $res-&gt;attr('_re') };</pre>
+<p>The HTML::Element-&gt;<code>look_down()</code> method is used to find elements that match the predicate. It appears to
+to have this peculiar behavior:</p>
+<pre>
+    $ matches the end of the text (not end-of-line)
+    . does not match end-of-lines</pre>
+<p>So, qr/.+$/ will typically fail. But, qr/blah blah.+/ will match to the end of line. You can specify
+regex flags, 'm' and 's', to get the behavior you desire. E.g qr/blah+.$/m will match till end of line.</p>
+<p>Also, given that you supply the regex via qr//, you can't specify the 'g' flag.</p>
 <p>
 </p>
 <h4><a name="psuedo_attr__tag">psuedo attr: tag</a></h4>
-<p>The tag-name, e.g. ``html''</p>
+<p>The tag-name, e.g. &quot;html&quot;</p>
 <p>
 </p>
 <h4><a name="psuedo_attr__n">psuedo attr: n</a></h4>
@@ -379,15 +423,15 @@ with the same attribute name. If you repeat a ``attr'', they will be or'd.</p>
     $n &lt; scalar(@res) ? $res[$n] : undef;</pre>
 <p>
 </p>
-<h3><a name="xpath_expr___or_xpath__expr">xpath(``expr''), OR xpath=&gt;``expr''</a></h3>
+<h3><a name="xpath_expr___or_xpath__expr">xpath(&quot;expr&quot;), OR xpath=&gt;&quot;expr&quot;</a></h3>
 <p>Restrict to the nodes that satisfy the expr. Predicates then apply to that list.</p>
-<p>Not compatible with ``in''. Only usable at the ``top-level'' of a predicate list, e.g.,
-not within ``not'', etc.</p>
+<p>Not compatible with &quot;in&quot;. Only usable at the &quot;top-level&quot; of a predicate list, e.g.,
+not within &quot;not&quot;, etc.</p>
 <p>
 </p>
-<h3><a name="not_____elementpredicate____">not =&gt; {element-predicate...}</a></h3>
-<p>Means ``and not &lt;element-predicates&gt;''.</p>
-<p>Read something like ``for the element: and not 1, and not 2, and not 3.''</p>
+<h3><a name="not_____element_predicate____">not =&gt; {element-predicate...}</a></h3>
+<p>Means &quot;and not &lt;element-predicates&gt;&quot;.</p>
+<p>Read something like &quot;for the element: and not 1, and not 2, and not 3.&quot;</p>
 <p>NB:</p>
 <pre>
     element not =&gt; { stuff }    # wrong</pre>
@@ -396,7 +440,7 @@ not within ``not'', etc.</p>
     not_element stuff...</pre>
 <p>
 </p>
-<h3><a name="firstof_____elementpredicates_">first-of =&gt; {element-predicates}</a></h3>
+<h3><a name="first_of_____element_predicates_">first-of =&gt; {element-predicates}</a></h3>
 <p>Acts like:</p>
 <pre>
     other-predicates and firstof1
@@ -411,20 +455,20 @@ not within ``not'', etc.</p>
     ..., qr/^a|b|c$/ =&gt; somevalue</pre>
 <p>
 </p>
-<h3><a name="in_____elementpredicate_">in =&gt; {element-predicate}</a></h3>
+<h3><a name="in_____element_predicate_">in =&gt; {element-predicate}</a></h3>
 <pre>
     &quot;in an element with &lt;element-predicates&gt;.&quot;</pre>
 <pre>
     Not compatible with using xpath.</pre>
 <p>
 </p>
-<h3><a name="shorthand_form____id_or_action_or_name_or_n">Short-hand form =&gt; ``id or action or name or n''</a></h3>
+<h3><a name="short_hand_form____id_or_action_or_name_or_n">Short-hand form =&gt; &quot;id or action or name or n&quot;</a></h3>
 <p>For</p>
 <pre>
     in =&gt; {tag =&gt; &quot;form&quot;, first-of =&gt; {id=&gt;&quot;x&quot;, action=&gt;&quot;x&quot;, name=&gt;&quot;x&quot;, n =&gt; &quot;x&quot;}}</pre>
 <p>
 </p>
-<h2><a name="element__elementpredicate____">element &lt;element-predicate&gt;...</a></h2>
+<h2><a name="element__element_predicate____">element &lt;element-predicate&gt;...</a></h2>
 <pre>
     If the element exists in the document
         return the first one, and log success
@@ -433,62 +477,62 @@ not within ``not'', etc.</p>
         log failure 
         die</pre>
 <p>In an array contex, You will get all the matching elements (of type <a href="/HTML/Element.html">the HTML::Element manpage</a>).</p>
-<p>See <a href="#maybe_____elementpredicate____">maybe</a>, below, for inhibiting the ``die.''</p>
+<p>See <a href="#maybe_____elementpredicate____">maybe</a>, below, for inhibiting the &quot;die.&quot;</p>
 <p>
 </p>
-<h3><a name="shorthand__element_tagname">Short-hand: element ``tagname''</a></h3>
+<h3><a name="short_hand__element_tagname">Short-hand: element &quot;tagname&quot;</a></h3>
 <p>For</p>
 <pre>
     element tag=&gt;&quot;tagname&quot;.</pre>
 <p>
 </p>
-<h3><a name="predicate_maybe_____elementpredicate____">Predicate maybe =&gt; {element-predicate...}</a></h3>
-<p>As if the predicates, but means ``don't fail, return null''. Changes ``element'' from 
-an assertion to ``find element or null.'' Generally, put all the predicates are in the ``maybe.''</p>
+<h3><a name="predicate_maybe_____element_predicate____">Predicate maybe =&gt; {element-predicate...}</a></h3>
+<p>As if the predicates, but means &quot;don't fail, return null&quot;. Changes &quot;element&quot; from 
+an assertion to &quot;find element or null.&quot; Generally, put all the predicates are in the &quot;maybe.&quot;</p>
 <p>
 </p>
 <h3><a name="idiom__find_an_element">Idiom: find an element</a></h3>
 <p>element maybe=&gt;{predicates...}</p>
-<p>Inhibits the ``die'' if the element is not found.</p>
+<p>Inhibits the &quot;die&quot; if the element is not found.</p>
 <p>Returns the first match (or undef) in scalar context, all matches in array context.</p>
 <p>
 </p>
-<h3><a name="shorthand_not_element____">Short-hand not_element ...</a></h3>
-<p>For ``no such element'', something like (cf. <a href="#not_____elementpredicate____">not</a>)</p>
+<h3><a name="short_hand_not_element____">Short-hand not_element ...</a></h3>
+<p>For &quot;no such element&quot;, something like (cf. <a href="#not_____elementpredicate____">not</a>)</p>
 <pre>
     not element maybe =&gt; {...} || fail...</pre>
 <p>
 </p>
-<h3><a name="shorthand_maybeelement____">Short-hand maybe-element ...</a></h3>
+<h3><a name="short_hand_maybe_element____">Short-hand maybe-element ...</a></h3>
 <p>For</p>
 <pre>
     element maybe =&gt; {...}</pre>
 <p>
 </p>
-<h3><a name="shorthand_allelement_____for_element_all_________">Short-hand all-element ... for element all =&gt; {...}</a></h3>
+<h3><a name="short_hand_all_element_____for_element_all_________">Short-hand all-element ... for element all =&gt; {...}</a></h3>
 <p>
 </p>
-<h3><a name="shorthand_field_name____">Short-hand field ``name'' ...</a></h3>
+<h3><a name="short_hand_field_name____">Short-hand field &quot;name&quot; ...</a></h3>
 <p>For</p>
 <pre>
     element tag =&gt; qr/select|checkbox|.../, ..., first-of =&gt; {id=&gt;&quot;x&quot;, action=&gt;&quot;x&quot;, name=&gt;&quot;x&quot;}</pre>
 <p>
 </p>
-<h2><a name="follow_element__elementpredicates_">follow element &lt;element-predicates&gt;</a></h2>
+<h2><a name="follow_element__element_predicates_">follow element &lt;element-predicates&gt;</a></h2>
 <p>Really, the same as</p>
 <pre>
     my $e = element ....;
     follow $e;</pre>
 <p>
 </p>
-<h3><a name="shorthand_follow__elementpredicates_">Short-hand follow &lt;element-predicates&gt;</a></h3>
+<h3><a name="short_hand_follow__element_predicates_">Short-hand follow &lt;element-predicates&gt;</a></h3>
 <p>For</p>
 <pre>
     follow element &lt;element-predicates&gt;</pre>
 <p>
 </p>
-<h3><a name="shorthand_follow__hrefvalue___or_follow_qr_hrefvalue______">Short-hand follow 'hrefvalue'; or follow qr/hrefvalue/, ...</a></h3>
-<p>A single argument is assumed to be for the href attribute (unless the arg is the result from an ``element'', see <a href="#follow_element__elementpredicates_">above</a>).</p>
+<h3><a name="short_hand_follow__hrefvalue___or_follow_qr_hrefvalue______">Short-hand follow 'hrefvalue'; or follow qr/hrefvalue/, ...</a></h3>
+<p>A single argument is assumed to be for the href attribute (unless the arg is the result from an &quot;element&quot;, see <em>above</em>).</p>
 <pre>
     follow tag=&gt;'a', href=&gt;hrefvalue, ...</pre>
 <p>
@@ -510,38 +554,38 @@ an assertion to ``find element or null.'' Generally, put all the predicates are 
 <hr />
 <h1><a name="see_also">See Also</a></h1>
 <ul>
-<li><strong><a name="item_html_3a_3atreebuilder_2fhtml_3a_3atreebuilder_3a_3"><a href="/HTML/TreeBuilder.html">the HTML::TreeBuilder manpage</a>/<a href="/HTML/TreeBuilder/XPath.html">the HTML::TreeBuilder::XPath manpage</a>. How we parse and search the web-page.</a></strong>
+<li><strong><a name="html_treebuilder_html_treebuilder_xpath_how_we_parse_and_search_the_web_page" class="item"><a href="/HTML/TreeBuilder.html">the HTML::TreeBuilder manpage</a>/<a href="/HTML/TreeBuilder/XPath.html">the HTML::TreeBuilder::XPath manpage</a>. How we parse and search the web-page.</a></strong>
 
 </dd>
-<dt><strong><a name="item_test_3a_3abuilder_and_its_ecosystem_2e_framework_2"><a href="/Test/Builder.html">the Test::Builder manpage</a> and its ecosystem. Framework, and commands for test suites.</a></strong></dt>
+<dt><strong><a name="test_builder_and_its_ecosystem_framework_and_commands_for_test_suites" class="item"><a href="/Test/Builder.html">the Test::Builder manpage</a> and its ecosystem. Framework, and commands for test suites.</a></strong></dt>
 
 <dd>
 </li>
-<li><strong><a name="item_www_3a_3amechanize_2e_another_web_interaction_tool"><a href="/WWW/Mechanize.html">the WWW::Mechanize manpage</a>. Another web interaction tool: OO, lower-level, better scraping.</a></strong>
+<li><strong><a name="www_mechanize_another_web_interaction_tool_oo_lower_level_better_scraping" class="item"><a href="/WWW/Mechanize.html">the WWW::Mechanize manpage</a>. Another web interaction tool: OO, lower-level, better scraping.</a></strong>
 
 </li>
-<li><strong><a name="item_test_3a_3ahttp_2e_another_web_testing_tool_3a_oo_2"><a href="/Test/HTTP.html">the Test::HTTP manpage</a>. Another web testing tool: OO, not tree parsing, simple, Test::Builder based.</a></strong>
+<li><strong><a name="test_http_another_web_testing_tool_oo_not_tree_parsing_simple_test_builder_based" class="item"><a href="/Test/HTTP.html">the Test::HTTP manpage</a>. Another web testing tool: OO, not tree parsing, simple, Test::Builder based.</a></strong>
 
 </li>
-<li><strong><a name="item_exemplar"><a href="/Test/HTTP/Syntax.html">the Test::HTTP::Syntax manpage</a>. Another web testing tool, built on Test::HTTP. Specify the test as a http-stream exemplar (not programmatic).</a></strong>
+<li><strong><a name="exemplar" class="item"><a href="/Test/HTTP/Syntax.html">the Test::HTTP::Syntax manpage</a>. Another web testing tool, built on Test::HTTP. Specify the test as a http-stream exemplar (not programmatic).</a></strong>
 
 </li>
-<li><strong><a name="item_http_3a_2f_2fseleniumhq_2eorg_2f_2e_test_and_excer"><a href="http://seleniumhq.org/">http://seleniumhq.org/</a>. Test and excersize web-sites _in_ your browser.</a></strong>
+<li><strong><a name="http_seleniumhq_org_test_and_excersize_web_sites_in_your_browser" class="item"><a href="http://seleniumhq.org/">http://seleniumhq.org/</a>. Test and excersize web-sites _in_ your browser.</a></strong>
 
 </li>
-<li><strong><a name="item_http_3a_2f_2fwww_2ewebinject_2eorg_2f_2e_xml_2dspe"><a href="http://www.webinject.org/">http://www.webinject.org/</a>. XML-spec for testing.</a></strong>
+<li><strong><a name="http_www_webinject_org_xml_spec_for_testing" class="item"><a href="http://www.webinject.org/">http://www.webinject.org/</a>. XML-spec for testing.</a></strong>
 
 </li>
-<li><strong><a name="item_test_3a_3axml_2e_diff_for_xml_2e"><a href="/Test/XML.html">the Test::XML manpage</a>. Diff for XML.</a></strong>
+<li><strong><a name="test_xml_diff_for_xml" class="item"><a href="/Test/XML.html">the Test::XML manpage</a>. Diff for XML.</a></strong>
 
 </li>
-<li><strong><a name="item_the_ruby_ecosystem_2e">The Ruby ecosystem.</a></strong>
+<li><strong><a name="the_ruby_ecosystem" class="item">The Ruby ecosystem.</a></strong>
 
 </li>
-<li><strong><a name="item_and_more_http_3a_2f_2fwww_2esoftwareqatest_2ecom_2">And more <a href="http://www.softwareqatest.com/qatweb1.html#FUNC">http://www.softwareqatest.com/qatweb1.html#FUNC</a>, <a href="http://perl-qa.hexten.net/wiki/index.php/TestingTools">http://perl-qa.hexten.net/wiki/index.php/TestingTools</a>,</a></strong>
+<li><strong><a name="and_more_http_www_softwareqatest_com_qatweb1_html_func_http_perl_qa_hexten_net_wiki_index_php_testingtools" class="item">And more <a href="http://www.softwareqatest.com/qatweb1.html#FUNC">http://www.softwareqatest.com/qatweb1.html#FUNC</a>, <a href="http://perl-qa.hexten.net/wiki/index.php/TestingTools">http://perl-qa.hexten.net/wiki/index.php/TestingTools</a>,</a></strong>
 
 </li>
-<li><strong><a name="item_curl_or_wget_2e_command_line_web_2dsite_interactio"><em>curl</em> or <em>wget</em>. Command line web-site interaction, spidering.</a></strong>
+<li><strong><a name="curl_or_wget_command_line_web_site_interaction_spidering" class="item"><em>curl</em> or <em>wget</em>. Command line web-site interaction, spidering.</a></strong>
 
 </li>
 </ul>
@@ -557,9 +601,7 @@ an assertion to ``find element or null.'' Generally, put all the predicates are 
 </p>
 <hr />
 <h1><a name="creating_the_pod">Creating the POD</a></h1>
-<p>To assemble the POD for Test::Website,
-
-</p>
+<p>To assemble the POD for Test::Website,</p>
 <pre>
     cd ..../Test
     make -f Website/Makefile pod

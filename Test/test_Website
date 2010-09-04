@@ -35,6 +35,15 @@ element 'html', not => { tag => 'xyzzy' } or die;
 element maybe => {not => { tag => 'html' }} or die;
 element maybe => { tag => 'xyzzy' } and die;
 element maybe => { tag => 'html' } or die;
+
+#head
+
+$n = element 'title';
+($n->content_list())[0] eq 'The title' or die;
+element 'link', rel => "alternate", type => "application/rss+xml";
+element maybe => {tag => 'link', rel => "alternate", type => "application/rss+xml"} || die "no maybe result";
+
+# body
 element 'span' or die;
 element 'span', id => "span1-id" or die;
 element 'span', id => "span1-id", class => "span1-class" or die;
@@ -217,6 +226,11 @@ __DATA__
 Headers: ...
 
 <html>
+    <head>
+      <title>The title</title>
+      <meta name="description" content="a head/meta tag" />
+      <link rel="alternate" type="application/rss+xml" title="rel-link" href="/rss" />
+    </head>
     <body>
         <!-- only 2 spans -->
         <span id="span1-id" class="span1-class"></span>
