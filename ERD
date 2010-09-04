@@ -1,0 +1,149 @@
+#!/usr/bin/env perl
+# --- dbi:... "user" "pass" catalog schema
+
+package ERD;
+
+die "usage: ".`head -2 $0 | tail -1` if @ARGV < 1;
+
+use warnings; use strict; no warnings 'uninitialized';
+use DBI;
+use Data::Dumper;
+
+my $DBH;
+
+sub main {
+    my ($con,$usr,$pas, $catalog, $schema) = @ARGV; # (shift @ARGV, shift @ARGV, shift @ARGV);
+
+    $DBH = DBI->connect($con,$usr,$pas, { RaiseError => 1,});
+
+    if (!defined $catalog) {
+        print "Table Types:\n";
+        print_table_info('','','','%','TABLE_TYPE');
+        print "Catalogs\n";
+        print_table_info('%','','','');
+        }
+    elsif (!defined $schema) {
+        print "Schemas:\n";
+        print_table_info('','%','','','TABLE_SCHEM');
+        }
+    else {
+        print "digraph $schema {\n";
+        # print_table_info($catalog,$schema,'%','TABLE','TABLE_NAME','TABLE_TYPE');
+        print_table_info($catalog,$schema,'%','TABLE',\&table_relations);
+        print "}\n";
+        }
+
+    }
+
+sub table_relations {
+    my ($table_info, $names, $catalog, $schema) = @_;
+
+    $names = [ 'TABLE_NAME' ];
+    if (!$table_info) {
+        # print join(", ",@$names),"\n";
+        return;
+        }
+
+    # print join(", ",map {$table_info->{$_}} @$names),"\n";
+    print $table_info->{'TABLE_NAME'}," [shape=record,label=\"{",$table_info->{'TABLE_NAME'}," | cols.. ";
+    # do columns
+    # then do ports for fk?
+    print "}\"]\n";
+
+    my @arcs;
+    my $sth = $DBH->foreign_key_info( undef, undef, undef,
+           , $catalog, $schema, $table_info->{'TABLE_NAME'} );
+
+    warn $sth;
+    # sqlite gives null for foreign_key_info
+    if (!$sth) {
+        my $fki_fn = 'remedial_foreign_key_info_'.$DBH->{'Driver'}->{'Name'};
+        if (ERD->can($fki_fn)) {
+            no strict 'refs';
+            my $refs = &$fki_fn($catalog, $schema, $table_info);
+            use strict 'refs';
+
+            warn "fki ".Dumper($refs);
+            # print $table_info->{'TABLE_NAME'}," [shape=box];\n";
+            foreach (@$refs) {
+               push @arcs, fk_arc($_);
+               }
+            }
+        else {
+            die "can't $fki_fn";
+            }
+        }
+    
+    # use the $DBH->foreign_key_info
+    else {
+
+        my @fk_names = sort @{$sth->{'NAME_uc'}};
+        while (my $fk_info = $sth->fetchrow_hashref('NAME_uc')) {
+            push @arcs, fk_arc($fk_info);
+            }
+        }
+    print @arcs;
+    }
+
+sub fk_arc {
+    my ($fkinfo) = @_;
+    
+    "",($fkinfo->{'FKTABLE_NAME'} || $fkinfo->{'FK_TABLE_NAME'}),
+        " -> ",
+        ($fkinfo->{'PKTABLE_NAME'} || $fkinfo->{'UK_TABLE_NAME'}),
+        " ["
+        ."taillabel=\"". ($fkinfo->{'FKCOLUMN_NAME'} || $fkinfo->{'FK_COLUMN_NAME'}).'"'
+        # .",taillabel=\"". ($fkinfo->{'PKCOLUMN_NAME'} || $fkinfo->{'PK_COLUMN_NAME'}).'"'
+        ."];",
+        "\n"
+        ;
+    }
+
+sub print_table_info {
+    my ($catalog,$schema,$table,$type, @columns) = @_;
+
+    my $sth = $DBH->table_info($catalog,$schema,$table,$type);
+    my @names = sort @{$sth->{'NAME_uc'}};
+
+    my $printer;
+    if (ref $_[4] eq 'CODE') {
+        $printer = shift @columns;
+        }
+    else {
+        @names = @columns;
+        $printer = sub {my ($table_info, $names) = @_; print join(", ",map {$table_info->{$_}} @$names),"\n"; }
+        }
+
+    &$printer(undef, \@names, $catalog, $schema);
+    while (my $table_info = $sth->fetchrow_hashref('NAME_uc')) {
+        &$printer($table_info,\@names, $catalog, $schema);
+        }
+    }
+
+sub remedial_foreign_key_info_SQLite {
+    my ($catalog, $schema, $row) = @_;
+    # return n-rows of a subset of the info that foreign_key_info() gives
+
+    my $sth = $DBH->table_info($catalog,$schema,$row->{'TABLE_NAME'},$row->{'TABLE_TYPE'});
+    my @refs;
+    while (my $tirow = $sth->fetchrow_hashref('NAME_uc')) {
+        my $sql = $tirow->{'SQLITE_SQL'};
+        warn "test $sql\n";
+        while (my ($col,$ftable,$fcol,$rest) = $sql =~ /\b(\w+) references (\w+) \((\w+)\)(.+)/) {
+            push @refs, { 
+                PKTABLE_CAT => $catalog,
+                PKTABLE_SCHEM => $schema,
+                PKTABLE_NAME => $ftable,
+                PKCOLUMN_NAME => $fcol,
+                FKTABLE_CAT => $catalog,
+                FKTABLE_SCHEM => $schema,
+                FKTABLE_NAME => $row->{'TABLE_NAME'},
+                FKCOLUMN_NAME => $col,
+                };
+            $sql = $rest;
+            }
+        }
+    warn Dumper(\@refs) if @refs;
+    \@refs;
+    }
+main();
