@@ -180,7 +180,7 @@ sub get_column_list {
             }
         $col[-1] .= "</TD>";
 
-        push @col, "<TD ALIGN='left'>";
+        push @col, "<TD ALIGN='left' PORT='_".$col_info->{'COLUMN_NAME'}."'>";
         my $not_null = ($col_info->{'NULLABLE'} == 0) ? "not null" : '';
         $col[-1] .= $not_null;
         $col[-1] .= ($not_null ? "<BR/>" : '').$col_info->{'COLUMN_DEF'} if $col_info->{'COLUMN_DEF'};
@@ -244,7 +244,7 @@ sub remedial_foreign_key_info_SQLite {
     my @refs;
     while (my $tirow = $sth->fetchrow_hashref('NAME_uc')) {
         my $sql = $tirow->{'SQLITE_SQL'};
-        while (my ($col,$ftable,$fcol,$rest) = $sql =~ /\b(\w+) references (\w+) \((\w+)\)(.+)/) {
+        while (my ($col,$coltype, $ftable,$fcol,$rest) = $sql =~ /\b(\w+) (\w+)? references (\w+) \((\w+)\)(.+)/s) {
             push @refs, { 
                 PKTABLE_CAT => $catalog,
                 PKTABLE_SCHEM => $schema,
