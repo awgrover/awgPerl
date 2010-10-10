@@ -78,8 +78,10 @@ use Data::Dumper;
 
 sub main {
     if ($ARGV[0] eq '-linecount') {
+      # without comments and blank lines
       exec q{awk '/^use Text::Balanced/,/^package/' < "}.$0.q{" | awk '/[ \t]*#/ || /^[ \t]*$/ || /^package/ {next} ; {print}' | wc -l};     
     }
+
     my $template;
     if (-e $ARGV[0]) {
       $template = join("",<>);
